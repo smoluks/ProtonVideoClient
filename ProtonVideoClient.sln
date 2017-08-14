@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtonVideoClient", "ProtonVideoClient\ProtonVideoClient.csproj", "{53118636-E595-4EFC-A33A-BB21346E7FC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtonRS485Client", "ProtonRS485Client\ProtonRS485Client.csproj", "{BD197BB9-B738-4473-9CC9-619CFD3C6369}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53118636-E595-4EFC-A33A-BB21346E7FC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53118636-E595-4EFC-A33A-BB21346E7FC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53118636-E595-4EFC-A33A-BB21346E7FC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53118636-E595-4EFC-A33A-BB21346E7FC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD197BB9-B738-4473-9CC9-619CFD3C6369}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD197BB9-B738-4473-9CC9-619CFD3C6369}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD197BB9-B738-4473-9CC9-619CFD3C6369}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD197BB9-B738-4473-9CC9-619CFD3C6369}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
