@@ -6,11 +6,22 @@ namespace ProtonRS485Client
 {
     class UartLevel
     {
-        CommandLevel _commandLevel;
-        int _deviceAddress;
-        ProcessConnectionDelegate _processConnection;
-        bool Proton8IsConnected = false;
-        Timer ConnectionTimeoutTimer;
+        private enum EComState {
+            WaitCommand = 0,
+            WaitLength,
+            CollectData
+        };
+
+        private CommandLevel _commandLevel;
+        private int _deviceAddress;
+        private ProcessConnectionDelegate _processConnection;
+        private bool _proton8IsConnected = false;
+        private Timer _connectionTimeoutTimer;       
+        private EComState _comState = EComState.WaitCommand;
+        private byte _receivedSlaveAddress;
+        private byte _lengthOfFrameValue;
+        private byte _dataHandle;
+        private byte[] _data;
 
         /// <summary>
         /// Конструктор
@@ -23,87 +34,87 @@ namespace ProtonRS485Client
             _deviceAddress = objectConfig.deviceAddress;
             _processConnection = processConnection;
             //таймер контроля связи с протоном
-            ConnectionTimeoutTimer = new Timer(5000);
-            ConnectionTimeoutTimer.Enabled = true;
-            ConnectionTimeoutTimer.Elapsed += new ElapsedEventHandler(ConnectionTimeoutTimer_Elapsed);
+            _connectionTimeoutTimer = new Timer(5000);
+            _connectionTimeoutTimer.Enabled = true;
+            _connectionTimeoutTimer.Elapsed += new ElapsedEventHandler(ConnectionTimeoutTimer_Elapsed);
             //
             _commandLevel = new CommandLevel(objectConfig, processCommand);
         }
 
         private void ConnectionTimeoutTimer_Elapsed(object sender, ElapsedEventArgs e)
         {            
-            ConnectionTimeoutTimer.Stop();
-            if(Proton8IsConnected)
+            _connectionTimeoutTimer.Stop();
+            if(_proton8IsConnected)
             {
-                Proton8IsConnected = false;
+                _proton8IsConnected = false;
                 _processConnection(false);
             }            
-        }
+        }       
 
-        enum EComState { WaitCommand = 0, WaitLength, CollectData };
-        EComState comState = EComState.WaitCommand;
-        byte receivedSlaveAddress;
-        byte lengthOfFrameValue;
-        byte dataHandle;
-        byte[] data;        
+        private const byte addressMask = 0x7F;
+
+        private bool IsCurrentAddress(byte inputByte)
+        {
+            return (inputByte & addressMask) == _deviceAddress;
+        }
 
         /// <summary>
         /// Конечный автомат для входных байтов
         /// </summary>
         public void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
-            SerialPort sp = (SerialPort)sender;
-            while (sp.BytesToRead > 0)
+            var serialPort = (SerialPort)sender;
+            while (serialPort.BytesToRead > 0)
             {
-                byte newByte = (byte)sp.ReadByte();
-                switch (comState)
+                var currentByte = (byte)serialPort.ReadByte();
+                switch (_comState)
                 {
                     case EComState.WaitCommand:
                         //адрес ведомого                    
-                        if ((newByte & 0x7F) == _deviceAddress)
+                        if (IsCurrentAddress(currentByte))
                         {
-                            receivedSlaveAddress = newByte;
-                            comState = EComState.WaitLength;
-                            if (newByte == (_deviceAddress | 0x80) && !Proton8IsConnected)
+                            _receivedSlaveAddress = currentByte;
+                            _comState = EComState.WaitLength;
+                            if (currentByte == (_deviceAddress | 0x80) && !_proton8IsConnected)
                             {
-                                Proton8IsConnected = true;
+                                _proton8IsConnected = true;
                                 _processConnection(true);
                             }
-                            ConnectionTimeoutTimer.Stop();
-                            ConnectionTimeoutTimer.Start();
+                            _connectionTimeoutTimer.Stop();
+                            _connectionTimeoutTimer.Start();
                         }
                         break;
                     case EComState.WaitLength:
-                        lengthOfFrameValue = newByte;
+                        _lengthOfFrameValue = currentByte;
                         //длина фрейма
-                        if (lengthOfFrameValue < 4 || lengthOfFrameValue > 14)
-                            comState = EComState.WaitCommand;
+                        if (_lengthOfFrameValue < 4 || _lengthOfFrameValue > 14)
+                            _comState = EComState.WaitCommand;
                         else
                         {
-                            data = new byte[lengthOfFrameValue];
-                            data[0] = receivedSlaveAddress;
-                            data[1] = lengthOfFrameValue;
-                            dataHandle = 2;
-                            comState = EComState.CollectData;
+                            _data = new byte[_lengthOfFrameValue];
+                            _data[0] = _receivedSlaveAddress;
+                            _data[1] = _lengthOfFrameValue;
+                            _dataHandle = 2;
+                            _comState = EComState.CollectData;
                         }
                         break;
                     case EComState.CollectData:
                         //данные
-                        if (dataHandle < lengthOfFrameValue)
+                        if (_dataHandle < _lengthOfFrameValue)
                         {
-                            data[dataHandle] = newByte;
-                            dataHandle++;
+                            _data[_dataHandle] = currentByte;
+                            _dataHandle++;
                         }
                         else
                         {
                             //check crc
-                            if (crc(data, 0, data[1]) == newByte)
+                            if (GetCrc(_data, 0, _data[1]) == currentByte)
                             {
-                                Log.LogWrite("receive: " + BitConverter.ToString(data).Replace("-", " "));
-                                senddata(sp, _commandLevel.ProcessCommand(data));
+                                Log.LogWrite("receive: " + BitConverter.ToString(_data).Replace("-", " "));
+                                SendData(serialPort, _commandLevel.ProcessCommand(_data));
                             }
                             else Log.LogWrite("Bad CRC");
-                            comState = EComState.WaitCommand;
+                            _comState = EComState.WaitCommand;
                         }
                         break;
                 }
@@ -115,16 +126,16 @@ namespace ProtonRS485Client
         /// </summary>
         /// <param name="serialPort">порт</param>
         /// <param name="data">данные</param>
-        public void senddata(SerialPort serialPort, byte[] data)
+        public void SendData(SerialPort serialPort, byte[] data)
         {
             if (data == null)
                 return;
             Log.LogWrite("answer: " + BitConverter.ToString(data).Replace("-", " "));
             serialPort.Write(data, 0, data.Length);
-            serialPort.Write(new byte[] { crc(data, 0, data.Length) }, 0, 1);
+            serialPort.Write(new byte[] { GetCrc(data, 0, data.Length) }, 0, 1);
         }
 
-        byte crc(byte[] data, int offset, int length)
+        byte GetCrc(byte[] data, int offset, int length)
         {
             byte crc = 0;
             for (int i = 0; i < length; i++)
