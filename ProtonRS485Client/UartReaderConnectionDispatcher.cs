@@ -6,19 +6,28 @@ using System.Threading.Tasks;
 
 namespace ProtonRS485Client
 {
+    enum ConnectionState
+    {
+        WrongAddress,
+        Initiated,
+        NotInitiated
+    }
     class UartReaderConnectionDispatcher
     { 
-        public bool Connect(UartReader uartReader, byte address)
+        public ConnectionState Connect(UartReader uartReader, byte address)
         {
-            if (!IsAddressCorrect(uartReader.DeviceAddress, address)) return false;
+
+            if (!IsAddressCorrect(uartReader.DeviceAddress, address)) return ConnectionState.WrongAddress;
+            var connectionState = ConnectionState.NotInitiated;
             uartReader.SlaveAddress = address;
             if (IsConnectionRequested(uartReader.DeviceAddress, address) && !uartReader.Connected)
             {
+                connectionState = ConnectionState.Initiated;
                 uartReader.Connected = true;
                 //Событие на коннект
             }
             //Начинаем отсчет таймаута заново
-            return true;
+            return connectionState;
         }
 
         private static bool IsAddressCorrect(int deviceAddress, byte input)

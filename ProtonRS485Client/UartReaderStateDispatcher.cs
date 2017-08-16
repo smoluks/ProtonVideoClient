@@ -22,7 +22,7 @@ namespace ProtonRS485Client
         {
             if (_uartReader.State == UartReadState.Command)
             {
-                if (_connectionDispatcher.Connect(_uartReader, input))
+                if (_connectionDispatcher.Connect(_uartReader, input) != ConnectionState.WrongAddress)
                     _uartReader.State = UartReadState.Length;
             }
             else if (_uartReader.State == UartReadState.Length)
