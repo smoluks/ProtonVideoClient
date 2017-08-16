@@ -20,6 +20,15 @@ namespace ProtonRS485Client
         public bool Connected { get; set; }
         public byte FrameLength { get; set; }
         public byte[] Data { get; set; }
-        public byte DataHandle { get; set; }  
+        public byte DataHandle { get; set; }
+
+        private const byte DataHandleInitialValue = 2;
+        public void InitializeDataArray()
+        {
+            Data = new byte[FrameLength];
+            Data[0] = SlaveAddress;
+            Data[1] = FrameLength;
+            DataHandle = DataHandleInitialValue;
+        }
     }
 }

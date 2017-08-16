@@ -8,14 +8,7 @@ namespace ProtonRS485Client
 {
     class UartReaderDataDispatcher
     {       
-        private const byte DataHandleInitialValue = 2;
-        public void InitializeDataArray(UartReader uartReader)
-        {
-            uartReader.Data = new byte[uartReader.FrameLength];
-            uartReader.Data[0] = uartReader.SlaveAddress;
-            uartReader.Data[1] = uartReader.FrameLength;
-            uartReader.DataHandle = DataHandleInitialValue;
-        }
+        
 
         public bool IsLengthInRange(byte length)
         {
@@ -29,7 +22,7 @@ namespace ProtonRS485Client
             {
                 return false;
             }
-            InitializeDataArray(uartReader);
+            uartReader.InitializeDataArray();
             return true;
         }
         public bool Read(UartReader uartReader, byte input)

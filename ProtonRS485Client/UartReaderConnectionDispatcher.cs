@@ -16,7 +16,6 @@ namespace ProtonRS485Client
     { 
         public ConnectionState Connect(UartReader uartReader, byte address)
         {
-
             if (!IsAddressCorrect(uartReader.DeviceAddress, address)) return ConnectionState.WrongAddress;
             var connectionState = ConnectionState.NotInitiated;
             uartReader.SlaveAddress = address;
