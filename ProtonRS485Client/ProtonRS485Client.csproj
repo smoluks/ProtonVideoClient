@@ -51,6 +51,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="RS485ClientMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UartHelper.cs" />
     <Compile Include="UartLevel.cs" />
     <Compile Include="UartReader.cs" />
     <Compile Include="UartReaderConnectionDispatcher.cs" />

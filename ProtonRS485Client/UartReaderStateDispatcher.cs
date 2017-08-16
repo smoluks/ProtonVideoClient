@@ -11,10 +11,12 @@ namespace ProtonRS485Client
     {
         private readonly UartReader _uartReader;
         private readonly UartReaderConnectionDispatcher _connectionDispatcher;
-        public UartReaderStateDispatcher(UartReader uartReader, UartReaderConnectionDispatcher connectionDispatcher)
+        private readonly UartReaderDataDispatcher _dataDispatcher;
+        public UartReaderStateDispatcher(UartReader uartReader, UartReaderConnectionDispatcher connectionDispatcher, UartReaderDataDispatcher dataDispatcher)
         {
             _uartReader = uartReader;
             _connectionDispatcher = connectionDispatcher;
+            _dataDispatcher = dataDispatcher;
         }
         public void SetState(byte input)
         {
@@ -26,13 +28,13 @@ namespace ProtonRS485Client
             else if (_uartReader.State == UartReadState.Length)
             {     
                 _uartReader.State =
-                    _uartReader.SetFrameLength(input)
+                    _dataDispatcher.SetFrameLength(_uartReader, input)
                         ? UartReadState.Data
                         : UartReadState.Command;
             }
             else if (_uartReader.State == UartReadState.Data)
             {
-                if (_uartReader.Read(input))
+                if (_dataDispatcher.Read(_uartReader, input))
                     _uartReader.State = UartReadState.Command;
             }
         }

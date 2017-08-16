@@ -9,12 +9,12 @@ namespace ProtonRS485Client
     class UartReaderDataDispatcher
     {       
         private const byte DataHandleInitialValue = 2;
-        public void InitializeDataArray()
+        public void InitializeDataArray(UartReader uartReader)
         {
-            Data = new byte[FrameLength];
-            Data[0] = SlaveAddress;
-            Data[1] = FrameLength;
-            DataHandle = DataHandleInitialValue;
+            uartReader.Data = new byte[uartReader.FrameLength];
+            uartReader.Data[0] = uartReader.SlaveAddress;
+            uartReader.Data[1] = uartReader.FrameLength;
+            uartReader.DataHandle = DataHandleInitialValue;
         }
 
         public bool IsLengthInRange(byte length)
@@ -22,24 +22,24 @@ namespace ProtonRS485Client
             return length >= 4 && length <= 14;
         }
 
-        public bool SetFrameLength(byte length)
+        public bool SetFrameLength(UartReader uartReader, byte length)
         {
-            FrameLength = length;
-            if (!IsLengthInRange(FrameLength))
+            uartReader.FrameLength = length;
+            if (!IsLengthInRange(uartReader.FrameLength))
             {
                 return false;
             }
-            InitializeDataArray();
+            InitializeDataArray(uartReader);
             return true;
         }
-        public bool Read(byte input)
+        public bool Read(UartReader uartReader, byte input)
         {
-            if (DataHandle < FrameLength)
+            if (uartReader.DataHandle < uartReader.FrameLength)
             {
-                Data[DataHandle++] = input;
+                uartReader.Data[uartReader.DataHandle++] = input;
                 return false;
             }
-            if (UartHelper.GetCrc(Data, 0, FrameLength) == input)
+            if (UartHelper.GetCrc(uartReader.Data, 0, uartReader.FrameLength) == input)
             {
                 //Log.LogWrite("receive: " + BitConverter.ToString(_data).Replace("-", " "));
                 //SendData(serialPort, _commandLevel.ProcessCommand(_data));  
