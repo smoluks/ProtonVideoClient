@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 
 namespace ProtonRS485Client
 {
+    enum ReadState
+    {
+        InProcess,
+        CrcCorrect,
+        CrcIncorrect
+    }
     class UartReaderDataDispatcher
-    {       
-        
-
+    {   
         public bool IsLengthInRange(byte length)
         {
             return length >= 4 && length <= 14;
@@ -25,19 +29,17 @@ namespace ProtonRS485Client
             uartReader.InitializeDataArray();
             return true;
         }
-        public bool Read(UartReader uartReader, byte input)
+        public ReadState Read(UartReader uartReader, byte input)
         {
             if (uartReader.DataHandle < uartReader.FrameLength)
             {
                 uartReader.Data[uartReader.DataHandle++] = input;
-                return false;
+                return ReadState.InProcess;
             }
-            if (UartHelper.GetCrc(uartReader.Data, 0, uartReader.FrameLength) == input)
-            {
-                //Log.LogWrite("receive: " + BitConverter.ToString(_data).Replace("-", " "));
-                //SendData(serialPort, _commandLevel.ProcessCommand(_data));  
-            }
-            return true;
+            if (UartHelper.GetCrc(uartReader.Data) != input) return ReadState.CrcIncorrect;
+            //Log.LogWrite("receive: " + BitConverter.ToString(_data).Replace("-", " "));
+            //SendData(serialPort, _commandLevel.ProcessCommand(_data)); 
+            return ReadState.CrcCorrect;           
         }
     }
 }

@@ -8,13 +8,13 @@ namespace ProtonRS485Client
 {
     static class UartHelper
     {
-        public static byte GetCrc(IList<byte> data, int offset, int length)
+        public static byte GetCrc(IList<byte> data)
         {
             byte crc = 0;
-            for (var i = 0; i < length; i++)
+            for (var index = 0; index < data.Count; index++)
             {
-                var currentByte = data[i + offset];
-                for (byte p = 0; p < 8; p++)
+                var currentByte = data[index];
+                for (byte bitCounter = 0; bitCounter < 8; bitCounter++)
                 {
                     if (((crc ^ currentByte) & 0x01) != 0)
                     {

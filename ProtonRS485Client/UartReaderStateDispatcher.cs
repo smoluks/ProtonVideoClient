@@ -10,31 +10,31 @@ namespace ProtonRS485Client
     class UartReaderStateDispatcher
     {
         private readonly UartReader _uartReader;
-        private readonly UartReaderConnectionDispatcher _connectionDispatcher;
-        private readonly UartReaderDataDispatcher _dataDispatcher;
-        public UartReaderStateDispatcher(UartReader uartReader, UartReaderConnectionDispatcher connectionDispatcher, UartReaderDataDispatcher dataDispatcher)
+        /*private readonly UartReaderConnectionDispatcher _connectionDispatcher;
+        private readonly UartReaderDataDispatcher _dataDispatcher;*/
+        private IUartReaderStateHandler _stateHandler;
+        public UartReaderStateDispatcher(UartReader uartReader, IUartReaderStateHandler stateHandler)
         {
             _uartReader = uartReader;
-            _connectionDispatcher = connectionDispatcher;
-            _dataDispatcher = dataDispatcher;
+            _stateHandler = stateHandler;
         }
-        public void SetState(byte input)
+        public void SetState()
         {
             if (_uartReader.State == UartReadState.Command)
             {
-                if (_connectionDispatcher.Connect(_uartReader, input) != ConnectionState.WrongAddress)
+                if (_stateHandler.GetConnectionResult(_uartReader) != ConnectionState.WrongAddress)
                     _uartReader.State = UartReadState.Length;
             }
             else if (_uartReader.State == UartReadState.Length)
-            {     
+            {
                 _uartReader.State =
-                    _dataDispatcher.SetFrameLength(_uartReader, input)
+                    _stateHandler.GetFrameLengthChangeResult(_uartReader)
                         ? UartReadState.Data
                         : UartReadState.Command;
             }
             else if (_uartReader.State == UartReadState.Data)
             {
-                if (_dataDispatcher.Read(_uartReader, input))
+                if (_stateHandler.GetReadResult(_uartReader) != ReadState.InProcess)
                     _uartReader.State = UartReadState.Command;
             }
         }
