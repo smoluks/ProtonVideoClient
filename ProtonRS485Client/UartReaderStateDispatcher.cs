@@ -18,6 +18,7 @@ namespace ProtonRS485Client
             _connectionDispatcher = connectionDispatcher;
             _dataDispatcher = dataDispatcher;
         }
+
         public void SetState(byte input)
         {
             if (_uartReader.State == UartReadState.Command)

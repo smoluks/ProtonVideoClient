@@ -42,7 +42,7 @@ namespace ProtonRS485Client
         /// <summary>
         /// Подключение к протону
         /// </summary>
-        /// <param name="devpath">COM-порт</param>
+        /// <param name="devpath">COM-порт</param>w
         /// <param name="objectNumber">Объектовый номер</param>
         /// <param name="processCommand">Колбек для команд</param>
         /// <param name="processConnection">Колбек контроля связи с протоном</param>
@@ -58,6 +58,7 @@ namespace ProtonRS485Client
                 _serialPort.DataReceived += new SerialDataReceivedEventHandler(_uartLevel.DataReceivedHandler);
                 _serialPort.ReadTimeout = 1000;
                 _serialPort.Open();
+                _serialPort.BaseStream.ReadAsync()
                 connected = true;
             }
             catch (Exception e)
