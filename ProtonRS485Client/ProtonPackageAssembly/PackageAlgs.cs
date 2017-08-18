@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ProtonRS485Client
 {
-    static class UartHelper
+    /// <summary>
+    /// Всякие алгоритмы и другие заведомо неизменные вещи
+    /// </summary>
+    static class PackageAlgs
     {
+        /// <summary>
+        /// подсчет Dallas CRC8
+        /// </summary>
+        /// <param name="data">данные</param>
+        /// <returns>CRC8</returns>
         public static byte GetCrc(IList<byte> data)
         {
             byte crc = 0;

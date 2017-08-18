@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,21 +45,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IUartReaderStateHandler.cs" />
-    <Compile Include="Message.cs" />
-    <Compile Include="configs\ObjectConfig.cs" />
-    <Compile Include="CommandLevel.cs" />
-    <Compile Include="configs\ObjectState.cs" />
-    <Compile Include="Log.cs" />
+    <Compile Include="Data\Message.cs" />
+    <Compile Include="Data\ObjectConfig.cs" />
+    <Compile Include="DataLogDispatcher.cs" />
+    <Compile Include="ProtonPackageAssembly\PackageConnectDispatcher.cs" />
+    <Compile Include="ProtonPackageProcess\PackageProcesser.cs" />
+    <Compile Include="Data\ObjectState.cs" />
+    <Compile Include="LogDispatcher.cs" />
     <Compile Include="RS485ClientMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UartHelper.cs" />
-    <Compile Include="UartLevel.cs" />
-    <Compile Include="UartReader.cs" />
-    <Compile Include="UartReaderConnectionDispatcher.cs" />
-    <Compile Include="UartReaderDataDispatcher.cs" />
-    <Compile Include="UartReaderStateDispatcher.cs" />
-    <Compile Include="UartReaderStateHandler.cs" />
+    <Compile Include="ProtonPackageAssembly\PackageAlgs.cs" />
+    <Compile Include="Uart\UartDispatcher.cs" />
+    <Compile Include="ProtonPackageAssembly\PackageDataDispatcher.cs" />
+    <Compile Include="ProtonPackageAssembly\PackageStateDispatcher.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
