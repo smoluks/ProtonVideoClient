@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IUartReaderStateHandler.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="configs\ObjectConfig.cs" />
     <Compile Include="CommandLevel.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="UartReaderConnectionDispatcher.cs" />
     <Compile Include="UartReaderDataDispatcher.cs" />
     <Compile Include="UartReaderStateDispatcher.cs" />
+    <Compile Include="UartReaderStateHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
