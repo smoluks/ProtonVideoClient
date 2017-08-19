@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -29,38 +30,42 @@ namespace ProtonRS485Client
         /// <summary>
         /// Сборка пакетов
         /// </summary>
-        public async Task StartCollect()
+        public Task CollectPacketsAsync()
         {
-            LogDispatcher.Write("StartCollect");
-            while (true)
+            return Task.Run(() =>
             {
-                //Адрес
-                var addr = await _uart.ReadByteAsync(_breakToken);
-                MessageBox.Show("ReadByteAsync return " + addr.ToString());
-                if (_breakToken.IsCancellationRequested)
-                    return;
-                if (!_packageDataDispatcher.ProcessAddress(addr))
-                    break;
-                _packageConnectDispatcher.CorrectAddressReceived((addr & 0x80) == 0);
-                //Длина
-                var lenght = await _uart.ReadByteAsync(_breakToken);
-                if (_breakToken.IsCancellationRequested)
-                    return;
-                if (!_packageDataDispatcher.ProcessFrameLength(lenght))
-                    break;
-                //Данные
-                var data = await _uart.ReadAsync(--lenght, _breakToken);
-                if (_breakToken.IsCancellationRequested)
-                    return;
-                if (!_packageDataDispatcher.ProcessPacket(data))
-                    break;
-                //отправить это на обработку
-                var answer = _packageProcesser.ProcessCommand(_packageDataDispatcher.Packet);
-                if (_breakToken.IsCancellationRequested)
-                    return;
-                if (answer != null)
-                    await _uart.WriteAsync(answer, _breakToken);
-            }
+                while (!_breakToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        //Адрес
+                        var addrTask = _uart.ReadByteAsync(_breakToken);
+                        addrTask.Wait();
+                        if (!_packageDataDispatcher.ProcessAddress(addrTask.Result))
+                            break;
+                        _packageConnectDispatcher.CorrectAddressReceived((addrTask.Result & 0x80) == 0);
+                        //Длина
+                        var lenght = _uart.ReadByteAsync(_breakToken);
+                        lenght.Wait();
+                        if (!_packageDataDispatcher.ProcessFrameLength(lenght.Result))
+                            break;
+                        //Данные
+                        var data = _uart.ReadAsync(lenght.Result - 1, _breakToken);
+                        data.Wait();
+                        if (!_packageDataDispatcher.ProcessPacket(data.Result))
+                            break;
+                        //отправить это на обработку
+                        var answer = _packageProcesser.ProcessCommand(_packageDataDispatcher.Packet);
+                        if (answer != null)
+                            _uart.WriteAsync(answer, _breakToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogDispatcher.Write("CollectPacketsAsync ended by exception "+ex.Message);
+                        return;
+                    }
+                }
+            });
         }
     }
 }

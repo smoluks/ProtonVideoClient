@@ -40,6 +40,7 @@ namespace ProtonVideoClient
             //
             RS485Library = new RS485ClientMain(config.RS485LogEnable);
             scenarioKernel = new ScenarioKernel(config, this, RS485Library.SetMessageToSend);
+
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -72,7 +73,7 @@ namespace ProtonVideoClient
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            RS485Library.Disconnect();
+            RS485Library.Dispose();
             Log.CloseLog();
         }
 

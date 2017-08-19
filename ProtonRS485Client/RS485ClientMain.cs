@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ProtonRS485Client
-{    
+{
     /// <summary>
     /// Основной класс проекта
     /// </summary>
-    public class RS485ClientMain
+    public class RS485ClientMain: IDisposable
     {
         UartDispatcher _uart = new UartDispatcher();
         ObjectConfig _objectConfig;
@@ -22,33 +22,41 @@ namespace ProtonRS485Client
         public RS485ClientMain(bool logEnable)
         {
             LogDispatcher.OpenLogFile("proton_rs485_library.log");
+            LogDispatcher.Write("ProtonRS485Client started");
             if (logEnable)
                 DataLogDispatcher.OpenLogFile("proton_rs485_data.log");
             //
             _cancelTokenSource = new CancellationTokenSource();
-            CancellationToken _breakToken = _cancelTokenSource.Token;
+            _breakToken = _cancelTokenSource.Token;
         }
 
-        ~RS485ClientMain()
-        {
+        public void Dispose()
+        {           
+            _cancelTokenSource.Cancel();
+            _uart.Dispose();
+            LogDispatcher.Write("ProtonRS485Client closed");
             LogDispatcher.CloseLogFile();
             DataLogDispatcher.CloseLogFile();
         }
 
         public Err Connect(string port, ObjectConfig objectConfig)
         {
+            LogDispatcher.Write("ProtonRS485Client connect with port " + port);
             _objectConfig = objectConfig;
             Err connectionResult = _uart.Connect(port);
             if (connectionResult == Err.noErr)
             {
                 _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(_objectConfig.deviceAddress), new PackageConnectDispatcher(), _objectConfig, new ObjectState(), _breakToken);
-                _packageStateDispatcher.StartCollect();
+                CollectPacketsAsync();
                 //
-                MessageBox.Show("StartCollect exit");
-                _uart.Dispose();  
-                
             }
             return connectionResult;
+        }
+
+        async void CollectPacketsAsync()
+        {
+            LogDispatcher.Write("Start to CollectPacketsAsync");
+            await _packageStateDispatcher.CollectPacketsAsync();
         }
 
         /// <summary>
@@ -56,7 +64,9 @@ namespace ProtonRS485Client
         /// </summary>
         public void Disconnect()
         {
+            LogDispatcher.Write("ProtonRS485Client disconnect");
             _cancelTokenSource.Cancel();
+            _uart.Dispose();
         }
 
         /// <summary>

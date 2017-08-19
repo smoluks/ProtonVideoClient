@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace ProtonRS485Client
@@ -53,7 +54,7 @@ namespace ProtonRS485Client
             if (logStream == null)
                 return;
             DateTime localDate = DateTime.Now;
-            logStream.WriteLine(localDate.ToString() + " " + text);
+            logStream.WriteLine(localDate.ToString() + " " + text + " "+ Thread.CurrentThread.ManagedThreadId);
         }
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace ProtonRS485Client
             if (logStream == null)
                 return;
             DateTime localDate = DateTime.Now;
-            logStream.WriteLine(localDate.ToString() + " " + e.Message);
+            logStream.WriteLine(localDate.ToString() + " " + e.Message +" "+ Thread.CurrentThread.ManagedThreadId);
         }
 
         /// <summary>

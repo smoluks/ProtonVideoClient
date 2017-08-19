@@ -28,7 +28,6 @@ namespace ProtonRS485Client
         /// <returns>код ошибки</returns>
         public Err Connect(string port)
         {
-            LogDispatcher.Write("Connecting with port name: " + port);
             try
             {
                 _serialPort = new SerialPort(port, 19200, Parity.None, 8, StopBits.One);
@@ -58,7 +57,6 @@ namespace ProtonRS485Client
             if (_connected)
             {
                 _serialPort.Close();
-                LogDispatcher.Write("Port " + _serialPort.PortName + " closed");
             }
         }
 
