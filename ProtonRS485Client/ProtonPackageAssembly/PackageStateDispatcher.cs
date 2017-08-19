@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Windows.Forms;
 
 namespace ProtonRS485Client
 {
@@ -11,10 +12,9 @@ namespace ProtonRS485Client
         private readonly PackageDataDispatcher _packageDataDispatcher;
         private readonly PackageConnectDispatcher _packageConnectDispatcher;
         private readonly PackageProcesser _packageProcesser;
-        CancellationTokenSource _cancelTokenSource;
         CancellationToken _breakToken;
 
-        public PackageStateDispatcher(UartDispatcher uart, PackageDataDispatcher packageDataDispatcher, PackageConnectDispatcher packageConnectDispatcher, ObjectConfig objectConfig, ObjectState objectState)
+        public PackageStateDispatcher(UartDispatcher uart, PackageDataDispatcher packageDataDispatcher, PackageConnectDispatcher packageConnectDispatcher, ObjectConfig objectConfig, ObjectState objectState, CancellationToken breakToken)
         {
             _uart = uart;
             _packageDataDispatcher = packageDataDispatcher;
@@ -22,8 +22,7 @@ namespace ProtonRS485Client
             //
             _packageProcesser = new PackageProcesser(objectConfig, objectState);
             //
-            _cancelTokenSource = new CancellationTokenSource();
-            _breakToken = _cancelTokenSource.Token;
+            _breakToken = breakToken;
         }
 
         /// <summary>
@@ -31,27 +30,39 @@ namespace ProtonRS485Client
         /// </summary>
         public async void StartCollect()
         {
+            LogDispatcher.Write("StartCollect");
             while (true)
             {
                 //Адрес
                 var addr = await _uart.ReadByteAsync(_breakToken);
+                MessageBox.Show("ReadByteAsync return " + addr.ToString());
+                if (_breakToken.IsCancellationRequested)
+                    return;
                 if (!_packageDataDispatcher.ProcessAddress(addr))
                     break;
                 _packageConnectDispatcher.CorrectAddressReceived((addr & 0x80) == 0);
                 //Длина
                 var lenght = await _uart.ReadByteAsync(_breakToken);
+                if (_breakToken.IsCancellationRequested)
+                    return;
                 if (!_packageDataDispatcher.ProcessFrameLength(lenght))
                     break;
                 //Данные
                 var data = await _uart.ReadAsync(--lenght, _breakToken);
+                if (_breakToken.IsCancellationRequested)
+                    return;
                 if (!_packageDataDispatcher.ProcessPacket(data))
                     break;
                 //отправить это на обработку
                 var answer = _packageProcesser.ProcessCommand(_packageDataDispatcher.Packet);
+                if (_breakToken.IsCancellationRequested)
+                    return;
                 if (answer != null)
                     await _uart.WriteAsync(answer, _breakToken);
             }
         }
+
+
 
 
     }

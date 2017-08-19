@@ -72,6 +72,7 @@ namespace ProtonVideoClient
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            RS485Library.Destroy();
             Log.CloseLog();
         }
 

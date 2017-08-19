@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace ProtonRS485Client
 {    
@@ -10,7 +11,8 @@ namespace ProtonRS485Client
         UartDispatcher _uart = new UartDispatcher();
         ObjectConfig _objectConfig;
         PackageStateDispatcher _packageStateDispatcher;
-
+        CancellationTokenSource _cancelTokenSource;
+        CancellationToken _breakToken;
         /// <summary>
         /// Конструктор
         /// </summary>
@@ -19,11 +21,15 @@ namespace ProtonRS485Client
         {
             LogDispatcher.OpenLogFile("proton_rs485_library.log");
             if (logEnable)
-                DataLogDispatcher.OpenLogFile("proton_rs485_data.log");            
+                DataLogDispatcher.OpenLogFile("proton_rs485_data.log");
+            //
+            _cancelTokenSource = new CancellationTokenSource();
+            CancellationToken _breakToken = _cancelTokenSource.Token;
         }
 
-        ~RS485ClientMain()
+        public void Destroy()
         {
+            _cancelTokenSource.Cancel();
             _uart.Dispose();
             LogDispatcher.CloseLogFile();
             DataLogDispatcher.CloseLogFile();
@@ -33,8 +39,11 @@ namespace ProtonRS485Client
         {
             _objectConfig = objectConfig;
             Err connectionResult = _uart.Connect(port);
-            if(connectionResult == Err.noErr)
-                _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(_objectConfig.deviceAddress), new PackageConnectDispatcher(), _objectConfig, new ObjectState());
+            if (connectionResult == Err.noErr)
+            {
+                _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(_objectConfig.deviceAddress), new PackageConnectDispatcher(), _objectConfig, new ObjectState(), _breakToken);
+                _packageStateDispatcher.StartCollect();
+            }
             return connectionResult;
         }
 
@@ -43,6 +52,7 @@ namespace ProtonRS485Client
         /// </summary>
         public void Disconnect()
         {
+            _cancelTokenSource.Cancel();
             _uart.Dispose();
         }
 
