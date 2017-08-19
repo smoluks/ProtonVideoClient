@@ -1,28 +1,47 @@
 ﻿
 namespace ProtonRS485Client
-{
-    public enum EObjectMessages : ushort { Feedback = 155 };
-    public enum EObjectMessagePrefixs : ushort { On = 0x400, Off = 0 };
-
+{ 
     /// <summary>
-    /// Класс, описывающий сообщение от объекта серверу 
+    /// Класс, описывающий объектово-серверные сообщения системы протон
     /// </summary>
-    class Message
+    public class Message
     {
-        private EObjectMessages _command;
-        private EObjectMessagePrefixs _state;
+        /// <summary>
+        /// Расположение бита, определяющего, эта команда включения или выключения (сработки - восстановления, если от объекта)
+        /// </summary>
+        const ushort _stateBit = 0x400;
+        /// <summary>
+        /// Код команды или сообщения
+        /// </summary>
+        public enum ECommandCode : ushort { FileMessage = 26, SirenMessage = 27, Feedback = 155 };
+        public enum ECommandCodePrefix : ushort { On = _stateBit, Off = 0 };
+
+        private ECommandCode _command;
+        private ECommandCodePrefix _state;
         private byte _argument;
 
         /// <summary>
-        /// Конструктор сообщения
+        /// Конструктор сообщения для известной команды
         /// </summary>
         /// <param name="command">Команда</param>
         /// <param name="state">Сработка или восстановление</param>
         /// <param name="arg">Аргумент команды, как правило номер шлейфа</param>
-        public Message(EObjectMessages command, EObjectMessagePrefixs state, byte arg)
+        public Message(ECommandCode command, ECommandCodePrefix state, byte arg)
         {
             _command = command;
             _state = state;
+            _argument = arg;
+        }
+
+        /// <summary>
+        /// Конструктор сообщения по пришедшим кодам
+        /// </summary>
+        /// <param name="commandCode"></param>
+        /// <param name="arg"></param>
+        public Message(ushort commandCode, byte arg)
+        {
+            _command = (ECommandCode)(commandCode & 0x3FF); //поскольку у нас есть еще 5 бит сверху, которые могут задействовать, не надо сюда пихать инверсию _stateBit
+            _state = (ECommandCodePrefix)(commandCode & _stateBit);
             _argument = arg;
         }
 

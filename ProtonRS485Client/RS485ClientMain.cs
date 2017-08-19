@@ -34,12 +34,22 @@ namespace ProtonRS485Client
             DataLogDispatcher.CloseLogFile();
         }
 
-        /*/// <summary>
+        /// <summary>
         /// ставит сообщение на очередь в отправку
         /// </summary>
-        public void SetMessageToSend(EObjectMessages command, byte arg)
+        public void SetMessageToSend(Message message)
         {
-            _uartLevel.SetMessageToSend(command, arg);
-        }*/
+            //_uartLevel.SetMessageToSend(command, arg);
+            throw new Exception("Not implemented");
+        }
+
+        //События подключения и отключения мастера
+        public delegate void ConnectionDelegate();
+        public event ConnectionDelegate ConnectEvent;
+        public event ConnectionDelegate DisconnectEvent;
+
+        //Событие приема команды оповещения
+        public delegate void CommandDelegate();
+        public event CommandDelegate CommandEvent;
     }
 }

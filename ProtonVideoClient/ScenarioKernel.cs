@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace ProtonVideoClient
 {
-    public delegate void SetMessageToSendDelegate(EObjectMessages command, byte arg);
+    public delegate void SetMessageToSendDelegate(ECommandCode command, byte arg);
     public class ScenarioKernel
     {
         MainForm mainForm;
@@ -66,7 +66,7 @@ namespace ProtonVideoClient
                     case 3:
                         if (!noiseOnSent)
                         {
-                            setMessageToSendDelegate(EObjectMessages.NoiseOn, 6);
+                            setMessageToSendDelegate(ECommandCode.NoiseOn, 6);
                             noiseOnSent = true;
                         }
                         break;
@@ -132,7 +132,7 @@ namespace ProtonVideoClient
             CommandsQueue.Clear();
             isNoisePlaying = false;
             noiseOnSent = false;
-            setMessageToSendDelegate(EObjectMessages.NoiseOff, 6);            
+            setMessageToSendDelegate(ECommandCode.NoiseOff, 6);            
         }
     }
 }
