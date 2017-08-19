@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ProtonRS485Client
 {    
@@ -27,10 +29,8 @@ namespace ProtonRS485Client
             CancellationToken _breakToken = _cancelTokenSource.Token;
         }
 
-        public void Destroy()
+        ~RS485ClientMain()
         {
-            _cancelTokenSource.Cancel();
-            _uart.Dispose();
             LogDispatcher.CloseLogFile();
             DataLogDispatcher.CloseLogFile();
         }
@@ -43,6 +43,10 @@ namespace ProtonRS485Client
             {
                 _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(_objectConfig.deviceAddress), new PackageConnectDispatcher(), _objectConfig, new ObjectState(), _breakToken);
                 _packageStateDispatcher.StartCollect();
+                //
+                MessageBox.Show("StartCollect exit");
+                _uart.Dispose();  
+                
             }
             return connectionResult;
         }
@@ -53,7 +57,6 @@ namespace ProtonRS485Client
         public void Disconnect()
         {
             _cancelTokenSource.Cancel();
-            _uart.Dispose();
         }
 
         /// <summary>

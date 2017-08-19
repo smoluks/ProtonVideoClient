@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ProtonRS485Client
@@ -28,7 +29,7 @@ namespace ProtonRS485Client
         /// <summary>
         /// Сборка пакетов
         /// </summary>
-        public async void StartCollect()
+        public async Task StartCollect()
         {
             LogDispatcher.Write("StartCollect");
             while (true)
@@ -61,9 +62,5 @@ namespace ProtonRS485Client
                     await _uart.WriteAsync(answer, _breakToken);
             }
         }
-
-
-
-
     }
 }
