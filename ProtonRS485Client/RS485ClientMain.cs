@@ -5,33 +5,45 @@ namespace ProtonRS485Client
     /// <summary>
     /// Основной класс проекта
     /// </summary>
-    public class RS485ClientMain : IDisposable
+    public class RS485ClientMain
     {
         UartDispatcher _uart = new UartDispatcher();
-        ObjectConfig _objectConfig = new ObjectConfig();
+        ObjectConfig _objectConfig;
         PackageStateDispatcher _packageStateDispatcher;
 
         /// <summary>
         /// Конструктор
         /// </summary>
         /// <param name="logEnable">записывать обмен по RS485 в лог файл?</param>
-        public RS485ClientMain(string port, bool logEnable)
+        public RS485ClientMain(bool logEnable)
         {
             LogDispatcher.OpenLogFile("proton_rs485_library.log");
             if (logEnable)
-                DataLogDispatcher.OpenLogFile("proton_rs485_data.log");
-            _uart.Connect(port);
-            _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(_objectConfig.deviceAddress), new PackageConnectDispatcher(), _objectConfig, new ObjectState());
-        }        
+                DataLogDispatcher.OpenLogFile("proton_rs485_data.log");            
+        }
 
-        /// <summary>
-        /// Отключение от протона
-        /// </summary>
-        public void Dispose()
+        ~RS485ClientMain()
         {
             _uart.Dispose();
             LogDispatcher.CloseLogFile();
             DataLogDispatcher.CloseLogFile();
+        }
+
+        public Err Connect(string port, ObjectConfig objectConfig)
+        {
+            _objectConfig = objectConfig;
+            Err connectionResult = _uart.Connect(port);
+            if(connectionResult == Err.noErr)
+                _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(_objectConfig.deviceAddress), new PackageConnectDispatcher(), _objectConfig, new ObjectState());
+            return connectionResult;
+        }
+
+        /// <summary>
+        /// Отключение от протона
+        /// </summary>
+        public void Disconnect()
+        {
+            _uart.Dispose();
         }
 
         /// <summary>

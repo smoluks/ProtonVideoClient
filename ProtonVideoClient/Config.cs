@@ -4,6 +4,7 @@ using IniParser;
 using IniParser.Model;
 using System.IO;
 using System.Windows.Forms;
+using ProtonRS485Client;
 
 namespace ProtonVideoClient
 {
@@ -18,9 +19,9 @@ namespace ProtonVideoClient
         /// </summary>
         public bool RS485LogEnable = false;
         /// <summary>
-        /// Объектовый номер
+        /// все хардварные настройки как у протона-8 
         /// </summary>
-        public ushort ObjectNumber = 13;
+        public ObjectConfig objectConfig = new ObjectConfig();
         /// <summary>
         /// Тип заставки
         /// </summary>
@@ -74,7 +75,7 @@ namespace ProtonVideoClient
                 //Hardware
                 ComPort = data.Sections["Hardware"].GetKeyData("ComPort").Value;
                 bool.TryParse(data.Sections["Hardware"].GetKeyData("RS485log").Value, out RS485LogEnable);
-                ushort.TryParse(data.Sections["Hardware"].GetKeyData("ObjectNumber").Value, out ObjectNumber);
+                ushort.TryParse(data.Sections["Hardware"].GetKeyData("ObjectNumber").Value, out objectConfig.objectNumber);
                 //SplashScreen
                 switch (data.Sections["SplashScreen"].GetKeyData("SplashScreenType")?.Value)
                 {
@@ -158,7 +159,7 @@ namespace ProtonVideoClient
             SectionData HardwareSection = new SectionData("Hardware");
             HardwareSection.Keys.AddKey("ComPort", ComPort);
             HardwareSection.Keys.AddKey("RS485log", RS485LogEnable.ToString());
-            HardwareSection.Keys.AddKey("ObjectNumber", ObjectNumber.ToString());
+            HardwareSection.Keys.AddKey("ObjectNumber", objectConfig.objectNumber.ToString());
             ini.Sections.Add(HardwareSection);
             //Common
             SectionData CommonSection = new SectionData("SplashScreen");

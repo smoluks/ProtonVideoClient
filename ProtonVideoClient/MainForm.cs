@@ -49,7 +49,7 @@ namespace ProtonVideoClient
             Player.Height = s.Height;
             Player.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(scenarioKernel.Player_StatusChange);
             //
-            Err err = RS485Library.Connect(config.ComPort, config.ObjectNumber, scenarioKernel.ProcessCommand, ProcessConnection);
+            Err err = RS485Library.Connect(config.ComPort, config.objectConfig);
             switch (err)
             {
                 case Err.PortAccessError:
@@ -72,7 +72,6 @@ namespace ProtonVideoClient
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            RS485Library.Dispose();
             Log.CloseLog();
         }
 

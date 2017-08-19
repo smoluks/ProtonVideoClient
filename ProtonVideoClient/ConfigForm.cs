@@ -33,7 +33,7 @@ namespace ProtonVideoClient
             //
             RS485LogCb.Checked = _config.RS485LogEnable;
             //
-            ObjNumberNud.Value = _config.ObjectNumber;
+            ObjNumberNud.Value = _config.objectConfig.objectNumber;
             //-----Screensaver-----
             //
             ScreensaverTypeCb.SelectedIndex = (int)_config.SplashScreenType;
@@ -80,7 +80,7 @@ namespace ProtonVideoClient
                 MessageBox.Show("Для смены порта необходимо перезапустить программу");
             }
             _config.RS485LogEnable = RS485LogCb.Checked;
-            _config.ObjectNumber = (ushort)ObjNumberNud.Value;
+            _config.objectConfig.objectNumber = (ushort)ObjNumberNud.Value;
             //
             _config.SplashScreenType = (ESplashScreenType)ScreensaverTypeCb.SelectedIndex;
             _config.SplashScreenUrl = ScreensaverUrlTb.Text;

@@ -2,14 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using static ProtonRS485Client.Message;
 
 namespace ProtonVideoClient
 {
-    public delegate void SetMessageToSendDelegate(ECommandCode command, byte arg);
+    public delegate void SetMessageToSendDelegate(Message message);
     public class ScenarioKernel
     {
         MainForm mainForm;
@@ -66,7 +63,7 @@ namespace ProtonVideoClient
                     case 3:
                         if (!noiseOnSent)
                         {
-                            setMessageToSendDelegate(ECommandCode.NoiseOn, 6);
+                            setMessageToSendDelegate(new Message(ECommandCode.Feedback, ECommandCodePrefix.On, 6));
                             noiseOnSent = true;
                         }
                         break;
@@ -132,7 +129,7 @@ namespace ProtonVideoClient
             CommandsQueue.Clear();
             isNoisePlaying = false;
             noiseOnSent = false;
-            setMessageToSendDelegate(ECommandCode.NoiseOff, 6);            
+            setMessageToSendDelegate(new Message(ECommandCode.Feedback, ECommandCodePrefix.Off, 6));
         }
     }
 }
