@@ -38,7 +38,7 @@ namespace ProtonVideoClient
                 this.FormBorderStyle = FormBorderStyle.Fixed3D;
             }
             //
-            RS485Library = new RS485ClientMain(config.RS485LogEnable);
+            RS485Library = new RS485ClientMain();
             scenarioKernel = new ScenarioKernel(config, this, RS485Library.SetMessageToSend);
 
         }

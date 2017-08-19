@@ -16,6 +16,8 @@ namespace ProtonRS485Client
         private readonly PackageProcesser _packageProcesser;
         CancellationToken _breakToken;
 
+        bool _dataLogging; 
+
         public PackageStateDispatcher(UartDispatcher uart, PackageDataDispatcher packageDataDispatcher, PackageConnectDispatcher packageConnectDispatcher, ObjectConfig objectConfig, ObjectState objectState, CancellationToken breakToken)
         {
             _uart = uart;
@@ -23,6 +25,7 @@ namespace ProtonRS485Client
             _packageConnectDispatcher = packageConnectDispatcher;
             //
             _packageProcesser = new PackageProcesser(objectConfig, objectState);
+            _dataLogging = objectConfig.dataLogging;
             //
             _breakToken = breakToken;
         }
@@ -50,14 +53,23 @@ namespace ProtonRS485Client
                         if (!_packageDataDispatcher.ProcessFrameLength(lenght.Result))
                             break;
                         //Данные
-                        var data = _uart.ReadAsync(lenght.Result - 1, _breakToken);
-                        data.Wait();
-                        if (!_packageDataDispatcher.ProcessPacket(data.Result))
+                        var dataTask = _uart.ReadAsync(lenght.Result - 1, _breakToken);
+                        dataTask.Wait();
+                        if (!_packageDataDispatcher.ProcessPacket(dataTask.Result))
                             break;
                         //отправить это на обработку
-                        var answer = _packageProcesser.ProcessCommand(_packageDataDispatcher.Packet);
-                        if (answer != null)
-                            _uart.WriteAsync(answer, _breakToken);
+                        if (_dataLogging)
+                            LogDispatcher.WriteData("Packet received: ", _packageDataDispatcher.Packet);
+                        var answerTask = _packageProcesser.ProcessCommand(_packageDataDispatcher.Packet);
+                        if (answerTask != null)
+                        {
+                            var writeTask = _uart.WriteAsync(answerTask, _breakToken);
+                            writeTask.Wait();
+                            var writeCRCTask = _uart.WriteByteAsync(PackageAlgs.GetCrc(answerTask), _breakToken);
+                            writeCRCTask.Wait();
+                            if (_dataLogging)
+                                LogDispatcher.WriteData("Packet transmitted: ", answerTask);
+                        }
                     }
                     catch (Exception ex)
                     {

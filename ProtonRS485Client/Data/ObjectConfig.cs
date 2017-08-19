@@ -1,7 +1,7 @@
 ﻿namespace ProtonRS485Client
 {
     /// <summary>
-    /// Все настройки модуля как slave устройства на шине протона
+    /// Все настройки модуля
     /// </summary>
     public class ObjectConfig
     {
@@ -33,5 +33,9 @@
         /// Версия релиза ПО в BCD
         /// </summary>
         public byte softwareReleaseVersion = 0x01;
+        /// <summary>
+        /// Записывать весь обмен данными по RS485 в лог?
+        /// </summary>
+        public bool dataLogging = false;
     }
 }

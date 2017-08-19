@@ -17,7 +17,7 @@ namespace ProtonRS485Client
         /// Начать логирование. 
         /// Не забываем в конце работы вызвать CloseLogFile
         /// </summary>
-        public static void OpenLogFile()
+        public static void Open()
         {
             try
             {
@@ -33,7 +33,7 @@ namespace ProtonRS485Client
         /// Начать логирование в заданный файл.
         /// Не забываем в конце работы вызвать CloseLogFile
         /// </summary>
-        public static void OpenLogFile(string fileName)
+        public static void Open(string fileName)
         {
             try
             {
@@ -54,25 +54,31 @@ namespace ProtonRS485Client
             if (logStream == null)
                 return;
             DateTime localDate = DateTime.Now;
-            logStream.WriteLine(localDate.ToString() + " " + text + " "+ Thread.CurrentThread.ManagedThreadId);
+            logStream.WriteLine(localDate.ToString() + " " + text);
         }
 
         /// <summary>
         /// Записать сообщение исключения в лог-файл
         /// </summary>
         /// <param name="e">Exception</param>
-        public static void LogWriteException(Exception e)
+        public static void WriteException(Exception e)
         {
             if (logStream == null)
                 return;
             DateTime localDate = DateTime.Now;
-            logStream.WriteLine(localDate.ToString() + " " + e.Message +" "+ Thread.CurrentThread.ManagedThreadId);
+            logStream.WriteLine(localDate.ToString() + " " + e.Message);
         }
-
+        public static void WriteData(string name, byte[] data)
+        {
+            if (logStream == null)
+                return;
+            DateTime localDate = DateTime.Now;
+            logStream.WriteLine(localDate.ToString() + " " + name + " " + BitConverter.ToString(data).Replace("-", " "));
+        }
         /// <summary>
         /// Закрыть файл лога
         /// </summary>
-        public static void CloseLogFile()
+        public static void Close()
         {
             if (logStream != null)
                 logStream.Close();

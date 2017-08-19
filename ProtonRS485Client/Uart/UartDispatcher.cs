@@ -37,7 +37,7 @@ namespace ProtonRS485Client
             }
             catch (Exception e)
             {
-                LogDispatcher.LogWriteException(e);
+                LogDispatcher.WriteException(e);
                 if (e is ArgumentException)
                     return Err.PortPathError;
                 if (e is UnauthorizedAccessException)
@@ -96,6 +96,15 @@ namespace ProtonRS485Client
         public async Task WriteAsync(byte[] buffer, CancellationToken token)
         {
             await _serialPort.BaseStream.WriteAsync(buffer, 0, buffer.Length, token);
+        }
+
+        /// <summary>
+        /// Запись в порт
+        /// </summary>
+        /// <param name="data">данные для записи в порт</param>
+        public async Task WriteByteAsync(byte data, CancellationToken token)
+        {
+            await _serialPort.BaseStream.WriteAsync(new byte[] { data }, 0, 1, token);
         }
     }
 }

@@ -19,12 +19,10 @@ namespace ProtonRS485Client
         /// Конструктор
         /// </summary>
         /// <param name="logEnable">записывать обмен по RS485 в лог файл?</param>
-        public RS485ClientMain(bool logEnable)
+        public RS485ClientMain()
         {
-            LogDispatcher.OpenLogFile("proton_rs485_library.log");
+            LogDispatcher.Open("proton_rs485_library.log");
             LogDispatcher.Write("ProtonRS485Client started");
-            if (logEnable)
-                DataLogDispatcher.OpenLogFile("proton_rs485_data.log");
             //
             _cancelTokenSource = new CancellationTokenSource();
             _breakToken = _cancelTokenSource.Token;
@@ -35,8 +33,7 @@ namespace ProtonRS485Client
             _cancelTokenSource.Cancel();
             _uart.Dispose();
             LogDispatcher.Write("ProtonRS485Client closed");
-            LogDispatcher.CloseLogFile();
-            DataLogDispatcher.CloseLogFile();
+            LogDispatcher.Close();
         }
 
         public Err Connect(string port, ObjectConfig objectConfig)

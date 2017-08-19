@@ -64,8 +64,7 @@ namespace ProtonRS485Client
                 return false;
             }
             data.CopyTo(_data, 2);
-            //запишем пакет в лог
-            DataLogDispatcher.Write("receive: " + BitConverter.ToString(_data).Replace("-", " "));
+            
             //CRC от пакета с CRC на конце равна нулю, это свойство CRC
             if (PackageAlgs.GetCrc(_data) != 0)
             {
