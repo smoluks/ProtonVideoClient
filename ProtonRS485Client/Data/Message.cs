@@ -4,6 +4,10 @@ namespace ProtonRS485Client
     /// <summary>
     /// Класс, описывающий объектово-серверные сообщения системы протон
     /// </summary>
+    /// todo Все публичные поля сделать свойствами
+    /// Все публичные члены классов назвать с большой буквы
+    /// Для всех enum убрать префикс Е, значения enum с большой буквы
+    /// Не меняющиеся значения сделать константами
     public class Message
     {
         /// <summary>
@@ -40,6 +44,7 @@ namespace ProtonRS485Client
         /// <param name="arg"></param>
         public Message(ushort commandCode, byte arg)
         {
+            //Инкапсулировать commandCode & 0x3FF
             _command = (ECommandCode)(commandCode & 0x3FF); //поскольку у нас есть еще 5 бит сверху, которые могут задействовать, не надо сюда пихать инверсию _stateBit
             _state = (ECommandCodePrefix)(commandCode & _stateBit);
             _argument = arg;
@@ -66,5 +71,7 @@ namespace ProtonRS485Client
                 return _argument;
             }
         }
+
+        //public byte Argument { get; private set; }
     }
 }
