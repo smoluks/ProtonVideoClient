@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Data\Message.cs" />
     <Compile Include="Data\ObjectConfig.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="ProtonPackageAssembly\PackageConnectDispatcher.cs" />
     <Compile Include="ProtonPackageProcess\PackageProcesser.cs" />
     <Compile Include="Data\ObjectState.cs" />

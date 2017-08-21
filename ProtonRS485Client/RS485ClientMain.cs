@@ -14,7 +14,8 @@ namespace ProtonRS485Client
         ObjectConfig _objectConfig;
         PackageStateDispatcher _packageStateDispatcher;
         CancellationTokenSource _cancelTokenSource;
-        CancellationToken _breakToken;
+        CancellationToken _breakToken;        
+
         /// <summary>
         /// Конструктор
         /// </summary>
@@ -74,14 +75,5 @@ namespace ProtonRS485Client
             //_uartLevel.SetMessageToSend(command, arg);
             throw new Exception("Not implemented");
         }
-
-        //События подключения и отключения мастера
-        public delegate void ConnectionDelegate();
-        public event ConnectionDelegate ConnectEvent;
-        public event ConnectionDelegate DisconnectEvent;
-
-        //Событие приема команды оповещения
-        public delegate void CommandDelegate();
-        public event CommandDelegate CommandEvent;
     }
 }
