@@ -3,11 +3,13 @@
     /// <summary>
     /// Все состояния модуля как slave устройства на шине протона
     /// </summary>
+    /// 
     class ObjectState
     {
         /// <summary>
         /// Пожар?
         /// </summary>
+        /// тут лучше свойства
         public bool Fire = false;
         /// <summary>
         /// Паника?
@@ -24,6 +26,7 @@
         /// <summary>
         /// Состояние раздела
         /// </summary>
+        /// E надо убрать
         public enum ERazdelState : byte { Off = 0, Programming = 2, Disarmed = 4, WaitingArmed = 5, NotReady = 6, WaitingLoopSelect = 7, Armed = 8, WaitingDisarmed = 9, Bruteforce = 12 };
         public ERazdelState RazdelState = ERazdelState.Off;
         /// <summary>

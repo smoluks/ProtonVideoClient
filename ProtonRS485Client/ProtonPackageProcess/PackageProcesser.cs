@@ -5,6 +5,7 @@ namespace ProtonRS485Client
     /// <summary>
     /// Класс - обработчик пакетов протона
     /// </summary>
+    /// processor
     class PackageProcesser
     {
         ObjectConfig _objectConfig;
