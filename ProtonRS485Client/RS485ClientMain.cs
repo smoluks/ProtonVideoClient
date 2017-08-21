@@ -37,12 +37,12 @@ namespace ProtonRS485Client
             LogDispatcher.Close();
         }
 
-        public Err Connect(string port, ObjectConfig objectConfig)
+        public Error Connect(string port, ObjectConfig objectConfig)
         {
             LogDispatcher.Write("ProtonRS485Client connect with port " + port);
             _objectConfig = objectConfig;
-            Err connectionResult = _uart.Connect(port);
-            if (connectionResult == Err.noErr)
+            Error connectionResult = _uart.Connect(port);
+            if (connectionResult == Error.None)
             {
                 _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(_objectConfig.deviceAddress), new PackageConnectDispatcher(), _objectConfig, new ObjectState(), _breakToken);
                 CollectPacketsAsync();

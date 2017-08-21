@@ -18,6 +18,8 @@ namespace ProtonRS485Client
 
         bool _dataLogging; 
 
+        //token переместить в CollectPackets
+        //ObjectConfig сделать статическим
         public PackageStateDispatcher(UartDispatcher uart, PackageDataDispatcher packageDataDispatcher, PackageConnectDispatcher packageConnectDispatcher, ObjectConfig objectConfig, ObjectState objectState, CancellationToken breakToken)
         {
             _uart = uart;
@@ -33,9 +35,34 @@ namespace ProtonRS485Client
         /// <summary>
         /// Сборка пакетов
         /// </summary>
-        public Task CollectPacketsAsync()
+        /// Разделить операции (см. комментарии в Events)
+        public async Task CollectPacketsAsync()
         {
-            return Task.Run(() =>
+            while (!_breakToken.IsCancellationRequested)
+            {
+                var address = await _uart.ReadByteAsync(_breakToken);
+                if (!_packageDataDispatcher.ProcessAddress(address)) return;
+                //инкапсулировать (address & 0x80) == 0
+                _packageConnectDispatcher.CorrectAddressReceived((address & 0x80) == 0);
+
+                var length = await _uart.ReadByteAsync(_breakToken);
+                if (!_packageDataDispatcher.ProcessFrameLength(length)) return;
+                //Данные
+                var dataTask = await _uart.ReadAsync(length - 1, _breakToken);
+                if (!_packageDataDispatcher.ProcessPacket(dataTask)) return;
+                //отправить это на обработку
+                if (_dataLogging)
+                    LogDispatcher.WriteData("Packet received: ", _packageDataDispatcher.Packet);
+                var answerTask = _packageProcesser.ProcessCommand(_packageDataDispatcher.Packet);
+                if (answerTask != null)
+                {
+                    await _uart.WriteAsync(answerTask, _breakToken);
+                    await _uart.WriteByteAsync(PackageAlgs.GetCrc(answerTask), _breakToken);
+                    if (_dataLogging)
+                        LogDispatcher.WriteData("Packet transmitted: ", answerTask);
+                }
+            }
+            /*return Task.Run(() =>
             {
                 while (!_breakToken.IsCancellationRequested)
                 {
@@ -77,7 +104,7 @@ namespace ProtonRS485Client
                         return;
                     }
                 }
-            });
+            });*/
         }
     }
 }

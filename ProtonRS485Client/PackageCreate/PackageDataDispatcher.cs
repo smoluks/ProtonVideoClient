@@ -5,6 +5,9 @@ namespace ProtonRS485Client
     /// <summary>
     /// Класс - обработчик кусков данных, принятых с ком-порта
     /// </summary>
+    /// Слишком много всего в одном классе
+    /// 1) Вынести хранение
+    /// 2) Вынести чтение
     class PackageDataDispatcher
     {
         private byte _mySlaveDeviceAddress; //заданный адрес этого устройства без бита поиска

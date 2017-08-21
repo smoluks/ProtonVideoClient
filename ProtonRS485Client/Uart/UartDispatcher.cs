@@ -10,7 +10,7 @@ namespace ProtonRS485Client
     /// <summary>
     /// Коды возвращаемых ошибок
     /// </summary>
-    public enum Err { noErr = 0, PortPathError, PortAccessError, PortNotFoundError, OtherError };
+    public enum Error { None = 0, PortPathError, PortAccessError, PortNotFoundError, OtherError };
 
 
     /// <summary>
@@ -26,7 +26,7 @@ namespace ProtonRS485Client
         /// </summary>
         /// <param name="port">COM-порт</param>
         /// <returns>код ошибки</returns>
-        public Err Connect(string port)
+        public Error Connect(string port)
         {
             try
             {
@@ -39,14 +39,14 @@ namespace ProtonRS485Client
             {
                 LogDispatcher.WriteException(e);
                 if (e is ArgumentException)
-                    return Err.PortPathError;
+                    return Error.PortPathError;
                 if (e is UnauthorizedAccessException)
-                    return Err.PortAccessError;
+                    return Error.PortAccessError;
                 if (e is IOException)
-                    return Err.PortNotFoundError;
-                return Err.OtherError;
+                    return Error.PortNotFoundError;
+                return Error.OtherError;
             }
-            return Err.noErr;
+            return Error.None;
         }
 
         /// <summary>

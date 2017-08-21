@@ -50,22 +50,22 @@ namespace ProtonVideoClient
             Player.Height = s.Height;
             Player.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(scenarioKernel.Player_StatusChange);
             //
-            Err err = RS485Library.Connect(config.ComPort, config.objectConfig);
+            Error err = RS485Library.Connect(config.ComPort, config.objectConfig);
             switch (err)
             {
-                case Err.PortAccessError:
+                case Error.PortAccessError:
                     ViewerShowError("Порт " + config.ComPort + " занят");
                     break;
-                case Err.PortPathError:
+                case Error.PortPathError:
                     ViewerShowError("Запись порта \"" + config.ComPort + "\" некорректна");
                     break;
-                case Err.PortNotFoundError:
+                case Error.PortNotFoundError:
                     ViewerShowError("Порт " + config.ComPort + " не существует");
                     break;
-                case Err.OtherError:
+                case Error.OtherError:
                     ViewerShowError("Неопознанная ошибка");
                     break;
-                case Err.noErr:
+                case Error.None:
                     ViewerShowError("Ожидаем подключения ППКОП");
                     break;
             }

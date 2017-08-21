@@ -13,6 +13,7 @@ namespace ProtonRS485Client
         /// <param name="search">бит поиска имеет значение поиска</param>
         public void CorrectAddressReceived(bool search)
         {
+            //Надо вызывать из Events
             Events.ConnectEvent?.Invoke();
         }
     }
