@@ -39,8 +39,8 @@ namespace ProtonRS485Client
             if (connectionResult == Error.None)
             {
                 _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(), new PackageConnectDispatcher());
-                CollectPacketsAsync();
                 //
+                CollectPacketsAsync();
             }
             return connectionResult;
         }
@@ -61,12 +61,11 @@ namespace ProtonRS485Client
         }
 
         /// <summary>
-        /// ставит сообщение на очередь в отправку
+        /// Cтавит объектовое сообщение на очередь в отправку
         /// </summary>
         public void SetMessageToSend(ProtonMessage message)
         {
-            //_uartLevel.SetMessageToSend(command, arg);
-            throw new Exception("Not implemented");
+            ObjectState.MessageBuffer.Enqueue(message);
         }
     }
 }

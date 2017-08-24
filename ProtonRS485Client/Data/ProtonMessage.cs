@@ -16,11 +16,11 @@
         /// <summary>
         /// Код команды или сообщения
         /// </summary>
-        public enum ECommandCode : ushort { FileMessage = 26, SirenMessage = 27, Feedback = 155 };
-        public enum ECommandCodePrefix : ushort { On = 0, Off = _stateBit };
+        public enum CommandCodeEnum : ushort { FileMessage = 26, SirenMessage = 27, Feedback = 155 };
+        public enum CommandCodePrefixEnum : ushort { On = 0, Off = _stateBit };
 
-        private ECommandCode _command;
-        private ECommandCodePrefix _state;
+        private CommandCodeEnum _command;
+        private CommandCodePrefixEnum _state;
         private byte _argument;
 
         #region Конструкторы
@@ -30,7 +30,7 @@
         /// <param name="command">Команда</param>
         /// <param name="state">Сработка или восстановление</param>
         /// <param name="arg">Аргумент команды, как правило номер шлейфа</param>
-        public ProtonMessage(ECommandCode command, ECommandCodePrefix state, byte arg)
+        public ProtonMessage(CommandCodeEnum command, CommandCodePrefixEnum state, byte arg)
         {
             _command = command;
             _state = state;
@@ -45,18 +45,18 @@
         public ProtonMessage(ushort commandCode, byte arg)
         {
             //Инкапсулировать commandCode & 0x3FF
-            _command = (ECommandCode)(commandCode & 0x3FF); //поскольку у нас есть еще 5 бит сверху, которые могут задействовать, не надо сюда пихать инверсию _stateBit
-            _state = (ECommandCodePrefix)(commandCode & _stateBit);
+            _command = (CommandCodeEnum)(commandCode & 0x3FF); //поскольку у нас есть еще 5 бит сверху, которые могут задействовать, не надо сюда пихать инверсию _stateBit
+            _state = (CommandCodePrefixEnum)(commandCode & _stateBit);
             _argument = arg;
         }
         #endregion
 
-        #region СВойства
+        #region Свойства
 
         /// <summary>
         /// Команда
         /// </summary>
-        public ECommandCode Command
+        public CommandCodeEnum Command
         {
             get
             {
@@ -67,7 +67,7 @@
         /// <summary>
         /// Префикс команды
         /// </summary>
-        public ECommandCodePrefix Prefix
+        public CommandCodePrefixEnum Prefix
         {
             get
             {
@@ -108,7 +108,7 @@
         {
             string stringMessage;
             //префикс
-            if (_state == ECommandCodePrefix.On)
+            if (_state == CommandCodePrefixEnum.On)
                 stringMessage = "1-";
             else
                 stringMessage = "3-";

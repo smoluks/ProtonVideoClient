@@ -27,12 +27,11 @@ namespace ProtonVideoClient
         public void ProcessCommand(ProtonMessage message)
         {
             Log.Write("Command " + message.ToString());
-            if (message.Prefix == ECommandCodePrefix.On)
+            if (message.Prefix == CommandCodePrefixEnum.On)
             {
                 if((int)message.Command>255)
                 {
                     throw new Exception("Пришла странная команда "+ (int)message.Command + ". Команды 8-битные, в отличие от сообщений");
-                    return;
                 }
                 Command c = new Command((byte)message.Command, message.Argument);
                 CommandsQueue.Enqueue(c);
@@ -68,7 +67,7 @@ namespace ProtonVideoClient
                     case 3:
                         if (!noiseOnSent)
                         {
-                            setMessageToSendDelegate(new ProtonMessage(ECommandCode.Feedback, ECommandCodePrefix.On, 6));
+                            setMessageToSendDelegate(new ProtonMessage(CommandCodeEnum.Feedback, CommandCodePrefixEnum.On, 6));
                             noiseOnSent = true;
                         }
                         break;
@@ -134,7 +133,7 @@ namespace ProtonVideoClient
             CommandsQueue.Clear();
             isNoisePlaying = false;
             noiseOnSent = false;
-            setMessageToSendDelegate(new ProtonMessage(ECommandCode.Feedback, ECommandCodePrefix.Off, 6));
+            setMessageToSendDelegate(new ProtonMessage(CommandCodeEnum.Feedback, CommandCodePrefixEnum.Off, 6));
         }
     }
 }

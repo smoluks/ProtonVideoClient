@@ -13,13 +13,13 @@ namespace ProtonRS485Client.PackageCreate
 
         public PackageConnectDispatcher()
         {
-            Timer timer = new Timer(timeout);
+            timer = new Timer(timeout);
             timer.Elapsed += Timeout;
         }
             /// <summary>
         /// Вызывается при приеме нашего адреса
         /// </summary>
-        /// <param name="search">бит поиска имеет значение поиска</param>
+        /// <param name="search">обмен пакетами находится на сосотоянии поиска ведомого</param>
         public void CorrectAddressReceived(bool search)
         {
             if (!search) //начинаем отсчет только если стадия поиска прошла успешно

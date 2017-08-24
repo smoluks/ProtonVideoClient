@@ -11,7 +11,6 @@ namespace ProtonRS485Client.Uart
     /// </summary>
     public enum Error { None = 0, PortPathError, PortAccessError, PortNotFoundError, OtherError };
 
-
     /// <summary>
     /// Реализация работы с COM-портом
     /// </summary>
@@ -58,7 +57,6 @@ namespace ProtonRS485Client.Uart
                 _serialPort.Close();
             }
         }
-
         public void Dispose()
         {
             Disconnect();

@@ -1,4 +1,6 @@
-﻿namespace ProtonRS485Client.Data
+﻿using System.Collections.Generic;
+
+namespace ProtonRS485Client.Data
 {
     /// <summary>
     /// Все состояния модуля как slave устройства на шине протона
@@ -6,6 +8,10 @@
     /// 
     public static class ObjectState
     {
+        /// <summary>
+        /// Сообщения, которые надо отправить серверу
+        /// </summary>
+        public static Queue<ProtonMessage> MessageBuffer = new Queue<ProtonMessage>();
         /// <summary>
         /// Пожар?
         /// </summary>
@@ -27,8 +33,8 @@
         /// Состояние раздела
         /// </summary>
         /// E надо убрать
-        public enum ERazdelState : byte { Off = 0, Programming = 2, Disarmed = 4, WaitingArmed = 5, NotReady = 6, WaitingLoopSelect = 7, Armed = 8, WaitingDisarmed = 9, Bruteforce = 12 };
-        public static ERazdelState RazdelState = ERazdelState.Off;
+        public enum RazdelStateEnum : byte { Off = 0, Programming = 2, Disarmed = 4, WaitingArmed = 5, NotReady = 6, WaitingLoopSelect = 7, Armed = 8, WaitingDisarmed = 9, Bruteforce = 12 };
+        public static RazdelStateEnum RazdelState = RazdelStateEnum.Off;
         /// <summary>
         /// Ожидание взятия/снятия?
         /// </summary>
@@ -36,10 +42,10 @@
         /// <summary>
         /// Время до окончания процесса ожидания взятия/снятия
         /// </summary>
-        public static byte waitingTime = 0;
+        public static byte WaitingTime = 0;
         ///Отображение на светодиоде ПУ наличия связи прибора с ПЦН
-        public enum ELEdState : byte { Off = 0, Green = 1, Orange = 2, Red = 3 };
-        public static ELEdState LedState = ELEdState.Off;
+        public enum LedStateEnum : byte { Off = 0, Green = 1, Orange = 2, Red = 3 };
+        public static LedStateEnum LedState = LedStateEnum.Off;
         /// <summary>
         /// Есть вскрытие корпуса?
         /// </summary>
@@ -47,8 +53,8 @@
         /// <summary>
         /// Состояние АКБ
         /// </summary>
-        public enum EBatteryState : byte { Normal = 0, Discharged = 1, NoBattery = 3 };
-        public static EBatteryState BatteryState = EBatteryState.Normal;
+        public enum BatteryStateEnum : byte { Normal = 0, Discharged = 1, NoBattery = 3 };
+        public static BatteryStateEnum BatteryState = BatteryStateEnum.Normal;
         /// <summary>
         /// Сетевое питание отсутствует?
         /// </summary>
@@ -56,8 +62,8 @@
         /// <summary>
         /// Ответ на команду предыдущего цикла опроса (если команда там была)
         /// </summary>
-        public enum ECommandAnswer : byte { NoCommand = 0, accepted = 0x11, WrongPassword = 0x12, Rejected = 0x13 };
-        public static ECommandAnswer CommandAnswer = ECommandAnswer.NoCommand;
+        public enum CommandAnswerEnum : byte { NoCommand = 0, accepted = 0x11, WrongPassword = 0x12, Rejected = 0x13 };
+        public static CommandAnswerEnum CommandAnswer = CommandAnswerEnum.NoCommand;
 
     }
 }

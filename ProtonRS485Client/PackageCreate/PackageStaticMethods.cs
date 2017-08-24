@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+
 //ProtonRS485Client.PackageCreate
 namespace ProtonRS485Client.PackageCreate
 {
     /// <summary>
     /// Всякие алгоритмы и другие заведомо неизменные вещи
     /// </summary>
-    static class PackageAlgs
+    static class PackageStaticMethods
     {
         /// <summary>
         /// подсчет Dallas CRC8
@@ -32,6 +33,26 @@ namespace ProtonRS485Client.PackageCreate
                 }
             }
             return crc;
+        }
+
+        /// <summary>
+        /// Контрольная сумма для команд
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte GetCommandCrc()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// Выделяет из адреса бит поиска
+        /// </summary>
+        /// <param name="address">адрес</param>
+        /// <returns>мастер производит поиск этого устройства?</returns>
+        public static bool isAddressInSearch(byte address)
+        {
+            return ((address & 0x80) == 0);
         }
     }
 }

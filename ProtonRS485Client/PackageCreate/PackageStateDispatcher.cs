@@ -46,7 +46,7 @@ namespace ProtonRS485Client.PackageCreate
                 var address = await _uart.ReadByteAsync(_breakToken);
                 if (!_packageDataDispatcher.ProcessAddress(address)) return;
                 //инкапсулировать (address & 0x80) == 0
-                _packageConnectDispatcher.CorrectAddressReceived((address & 0x80)!=0);
+                _packageConnectDispatcher.CorrectAddressReceived(PackageStaticMethods.isAddressInSearch(address));
                 //длина
                 var length = await _uart.ReadByteAsync(_breakToken);
                 if (!_packageDataDispatcher.ProcessFrameLength(length)) return;
@@ -57,14 +57,14 @@ namespace ProtonRS485Client.PackageCreate
                 var crc = await _uart.ReadByteAsync(_breakToken);
                 if (!_packageDataDispatcher.ProcessCRC(crc)) return;
                 //отправить это на обработку
-                if (ObjectConfig.dataLogging)
+                if (ObjectConfig.DataLogging)
                     LogDispatcher.WriteData("Packet received: ", _packageDataDispatcher.package.GetPacket());
                 var answerTask = _packageProcesser.ProcessCommand(_packageDataDispatcher.package.GetPacket());
                 if (answerTask != null)
                 {
                     await _uart.WriteAsync(answerTask, _breakToken);
-                    await _uart.WriteByteAsync(PackageAlgs.GetCrc(answerTask), _breakToken);
-                    if (ObjectConfig.dataLogging)
+                    await _uart.WriteByteAsync(PackageStaticMethods.GetCrc(answerTask), _breakToken);
+                    if (ObjectConfig.DataLogging)
                         LogDispatcher.WriteData("Packet transmitted: ", answerTask);
                 }
             }
@@ -74,5 +74,6 @@ namespace ProtonRS485Client.PackageCreate
         {
             _cancelTokenSource.Cancel();
         }
+        
     }
 }

@@ -8,14 +8,15 @@ namespace ProtonRS485Client.Data
     /// </summary>
     class Package
     {
-
         private byte[] packet = null;
 
-        private byte address;
+        private byte address = 0;
         private bool isAdressReceived = false;
 
         private byte length;
         private bool isLengthReceived = false;
+
+        private bool isDataReceived = false;
         /// <summary>
         /// Адрес модуля, которому предназначается пакет
         /// </summary>
@@ -30,7 +31,10 @@ namespace ProtonRS485Client.Data
             }
             set
             {
-                address = value;
+                if (!isDataReceived)
+                    address = value;
+                else
+                    packet[0] = value;
                 isAdressReceived = true;
             }
         }
@@ -49,10 +53,19 @@ namespace ProtonRS485Client.Data
             }
             set
             {
-                length = value;
+                if (isLengthReceived)
+                    throw new Exception("Length already set");
+                else
+                {
+                    length = value;
+                    isLengthReceived = true;
+                }
             }
         }
 
+        /// <summary>
+        /// Блок данных пакета
+        /// </summary>
         public byte[] Data
         {
             set
@@ -63,23 +76,47 @@ namespace ProtonRS485Client.Data
                     throw new Exception("Length not correct");
                 else
                 {
-                    packet = new byte[length + 2];
+                    packet = new byte[length];
+                    packet[0] = address;
+                    packet[1] = length;
                     value.CopyTo(packet, 2);
+                    isDataReceived = true;
                 }
             }
         }
 
+        /// <summary>
+        /// CRC пакета
+        /// </summary>
         public byte Crc
         {
             get
             {
-                return PackageAlgs.GetCrc(packet);
+                if (!isAdressReceived)
+                    throw new Exception("Address not set");
+                else if (!isLengthReceived)
+                    throw new Exception("Length not set");
+                else if (!isDataReceived)
+                    throw new Exception("Data not set");
+                else
+                    return PackageStaticMethods.GetCrc(packet);
             }
         }
 
+        /// <summary>
+        /// Получить пакет
+        /// </summary>
+        /// <returns></returns>
         public byte[] GetPacket()
         {
-            return packet;
+            if (!isAdressReceived)
+                throw new Exception("Address not set");
+            else if (!isLengthReceived)
+                throw new Exception("Length not set");
+            else if (!isDataReceived)
+                throw new Exception("Data not set");
+            else
+                return packet;
         }
     }
 }

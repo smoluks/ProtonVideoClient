@@ -9,6 +9,7 @@
         /// Железный адрес устройства на шине. ППКОПы имеют адреса 1-15, ПУ 16-31, модуль оповещения - 120
         /// </summary>
         public static byte DeviceAddress = 120;
+        public static byte DeviceAddressRegistered = (byte)(DeviceAddress | 0x80);
         /// <summary>
         /// Номер объекта в АРМ. 
         /// </summary>
@@ -21,22 +22,22 @@
         /// <summary>
         /// Год выпуска в BCD
         /// </summary>
-        public static byte madeYear = 0x17;
+        public static byte MadeYear = 0x17;
         /// <summary>
         /// Номер устройства в BCD
         /// </summary>
-        public static ushort serialNumber = 0x0001;
+        public static ushort SerialNumber = 0x0001;
         /// <summary>
         /// Версия ПО в BCD
         /// </summary>
-        public static byte softwareVersion = 0x01;
+        public static byte SoftwareVersion = 0x01;
         /// <summary>
         /// Версия релиза ПО в BCD
         /// </summary>
-        public static byte softwareReleaseVersion = 0x01;
+        public static byte SoftwareReleaseVersion = 0x01;
         /// <summary>
         /// Записывать весь обмен данными по RS485 в лог?
         /// </summary>
-        public static bool dataLogging = false;
+        public static bool DataLogging = false;
     }
 }

@@ -55,7 +55,7 @@
     <Compile Include="LogDispatcher.cs" />
     <Compile Include="RS485ClientMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PackageCreate\PackageAlgs.cs" />
+    <Compile Include="PackageCreate\PackageStaticMethods.cs" />
     <Compile Include="Uart\UartDispatcher.cs" />
     <Compile Include="PackageCreate\PackageDataDispatcher.cs" />
     <Compile Include="PackageCreate\PackageStateDispatcher.cs" />

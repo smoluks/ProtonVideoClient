@@ -17,7 +17,7 @@ namespace ProtonVideoClient
 
         private void button1_Click(object sender, EventArgs e)
         {
-            _processCommand(new ProtonMessage((ECommandCode)CommandField.Value, (StartSelect.Checked ? ECommandCodePrefix.On : ECommandCodePrefix.Off), (byte)ArgumentField.Value));
+            _processCommand(new ProtonMessage((CommandCodeEnum)CommandField.Value, (StartSelect.Checked ? CommandCodePrefixEnum.On : CommandCodePrefixEnum.Off), (byte)ArgumentField.Value));
         }
 
     }
