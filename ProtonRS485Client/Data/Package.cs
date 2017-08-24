@@ -46,6 +46,7 @@ namespace ProtonRS485Client.Data
         {
             get
             {
+                //https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/property
                 if (!isLengthReceived)
                     throw new Exception("Length not set");
                 else

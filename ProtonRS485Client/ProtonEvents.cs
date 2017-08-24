@@ -29,21 +29,40 @@ namespace ProtonRS485Client
         }
     }
 
-    
+
 
     /*
-    private async Task RunConnect(){
+    private async Task RunAddressRead(){
        while(true) {
            var result = await ConnectAsync();
            HandleResult(result);
        }
-    }
+    }    
 
     private async Task RunRead(){
         while(true) {
             var result = await ReadAsync();
             HandleRead(result);
         }
+    }
+
+    -----------------------------------
+
+
+    public async Task<ConnectionResult> ConnectAsync() {
+        
+    }
+
+    public async Task<ReadResult< ReadAsync() {
+        
+    }
+
+    AddressReadResult {
+        //state
+    }
+
+    ReadResult(){
+        //state
     }
      
      */

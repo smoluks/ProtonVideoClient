@@ -45,8 +45,9 @@ namespace ProtonRS485Client.PackageCreate
                 //адрес                
                 var address = await _uart.ReadByteAsync(_breakToken);
                 if (!_packageDataDispatcher.ProcessAddress(address)) return;
-                //инкапсулировать (address & 0x80) == 0
+                //инкапсулировать (address & 0x80) == 0               
                 _packageConnectDispatcher.CorrectAddressReceived(PackageStaticMethods.isAddressInSearch(address));
+                
                 //длина
                 var length = await _uart.ReadByteAsync(_breakToken);
                 if (!_packageDataDispatcher.ProcessFrameLength(length)) return;
