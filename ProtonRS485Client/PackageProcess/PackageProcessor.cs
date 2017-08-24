@@ -1,6 +1,8 @@
+using ProtonRS485Client.Data;
 using System.Collections.Generic;
+using static ProtonRS485Client.Data.ProtonMessage;
 
-namespace ProtonRS485Client
+namespace ProtonRS485Client.PackageProcess
 {
     /// <summary>
     /// Класс - обработчик пакетов протона
@@ -8,18 +10,10 @@ namespace ProtonRS485Client
     /// processor
     class PackageProcesser
     {
-        ObjectConfig _objectConfig;
-        ObjectState _objectState;
-        Queue<Message> _messageBuffer = new Queue<Message>();
-
-        public PackageProcesser(ObjectConfig objectConfig, ObjectState objectState)
-        {
-            _objectConfig = objectConfig;
-            _objectState = objectState;
-        }
+        Queue<ProtonMessage> _messageBuffer = new Queue<ProtonMessage>();
 
         //ставит сообщение серверу на очередь в отправку
-        public void SetMessageToSend(Message message)
+        public void SetMessageToSend(ProtonMessage message)
         {
             _messageBuffer.Enqueue(message);
         }
@@ -54,18 +48,18 @@ namespace ProtonRS485Client
         byte[] MakeRegistrationAnswer()
         {
             byte[] buffer = new byte[12];
-            buffer[0] = _objectConfig.deviceAddress;
+            buffer[0] = ObjectConfig.DeviceAddress;
             buffer[1] = 0x0C;
             buffer[2] = 0xCC;
             buffer[3] = 0x80;
-            buffer[4] = (byte)((_objectConfig.objectNumber - 1) >> 8);
-            buffer[5] = (byte)(_objectConfig.objectNumber - 1);
+            buffer[4] = (byte)((ObjectConfig.ObjectNumber - 1) >> 8);
+            buffer[5] = (byte)(ObjectConfig.ObjectNumber - 1);
             buffer[6] = 0x26;
-            buffer[7] = _objectConfig.madeYear;
-            buffer[8] = (byte)(_objectConfig.serialNumber >> 8);
-            buffer[9] = (byte)(_objectConfig.serialNumber);
-            buffer[10] = _objectConfig.softwareVersion;
-            buffer[11] = _objectConfig.softwareReleaseVersion;
+            buffer[7] = ObjectConfig.madeYear;
+            buffer[8] = (byte)(ObjectConfig.serialNumber >> 8);
+            buffer[9] = (byte)(ObjectConfig.serialNumber);
+            buffer[10] = ObjectConfig.softwareVersion;
+            buffer[11] = ObjectConfig.softwareReleaseVersion;
             return buffer;
         }
 
@@ -94,7 +88,7 @@ namespace ProtonRS485Client
             {
                 //---подтверждение получения команды---
                 byte[] buffer = new byte[4];
-                buffer[0] = (byte)(_objectConfig.deviceAddress | 0x80);
+                buffer[0] = (byte)(ObjectConfig.DeviceAddress | 0x80);
                 buffer[1] = 4;
                 buffer[2] = 0;
                 buffer[3] = 0;
@@ -103,15 +97,15 @@ namespace ProtonRS485Client
             }
             else if (_messageBuffer.Count > 0)
             {
-                Message currentMessage = _messageBuffer.Dequeue();
+                ProtonMessage currentMessage = _messageBuffer.Dequeue();
                 //---отправка сообщения---
                 byte[] buffer = new byte[11];
-                buffer[0] = (byte)(_objectConfig.deviceAddress | 0x80);
+                buffer[0] = (byte)(ObjectConfig.DeviceAddress | 0x80);
                 buffer[1] = 11; //длина
                 buffer[2] = 0x00; //Команда
                 buffer[3] = 0x04; //ByteExt
-                buffer[4] = (byte)((_objectConfig.objectNumber - 1) >> 8);
-                buffer[5] = (byte)(_objectConfig.objectNumber - 1);
+                buffer[4] = (byte)((ObjectConfig.ObjectNumber - 1) >> 8);
+                buffer[5] = (byte)(ObjectConfig.ObjectNumber - 1);
                 buffer[6] = 0x0F; //Тип сообщения
                 buffer[7] = (byte)((ushort)currentMessage.CommandCode);
                 buffer[8] = (byte)((ushort)currentMessage.CommandCode >> 8);
@@ -123,36 +117,36 @@ namespace ProtonRS485Client
             {
                 //куча шлейфов
                 byte[] buffer = new byte[8];
-                buffer[0] = (byte)(_objectConfig.deviceAddress | 0x80);
+                buffer[0] = (byte)(ObjectConfig.DeviceAddress | 0x80);
                 buffer[1] = 8;
                 buffer[2] = 0x01; //Команда
-                buffer[3] = _objectConfig.RazdelNumber;
+                buffer[3] = ObjectConfig.RazdelNumber;
                 //---pstat0---
                 buffer[4] = 0;
-                if (_objectState.Fire)
+                if (ObjectState.Fire)
                     buffer[4] |= 0x80;
-                if (_objectState.Panic)
+                if (ObjectState.Panic)
                     buffer[4] |= 0x40;
-                if (_objectState.Alarm)
+                if (ObjectState.Alarm)
                     buffer[4] |= 0x20;
-                if (_objectState.Error)
+                if (ObjectState.Error)
                     buffer[4] |= 0x10;
-                buffer[4] |= (byte)((byte)_objectState.RazdelState & 0x0F);
+                buffer[4] |= (byte)((byte)ObjectState.RazdelState & 0x0F);
                 //pstat1
-                if (_objectState.WaitingArmedChangeState)
-                    buffer[5] = _objectState.waitingTime;
+                if (ObjectState.WaitingArmedChangeState)
+                    buffer[5] = ObjectState.waitingTime;
                 else
                 {
-                    buffer[5] = (byte)(((byte)_objectState.LedState & 0x03) << 6);
-                    if (_objectState.TamperOff)
+                    buffer[5] = (byte)(((byte)ObjectState.LedState & 0x03) << 6);
+                    if (ObjectState.TamperOff)
                         buffer[5] |= 0x08;
-                    buffer[5] = (byte)(((byte)_objectState.BatteryState & 0x03) << 1);
-                    if (_objectState.MainPowerError)
+                    buffer[5] = (byte)(((byte)ObjectState.BatteryState & 0x03) << 1);
+                    if (ObjectState.MainPowerError)
                         buffer[5] |= 0x01;
                 }
                 //подтв. приема команды
-                buffer[6] = (byte)_objectState.CommandAnswer;
-                _objectState.CommandAnswer = 0;
+                buffer[6] = (byte)ObjectState.CommandAnswer;
+                ObjectState.CommandAnswer = 0;
                 //тип данных - ШС 1-16
                 buffer[7] = 0x0;
                 //
@@ -172,6 +166,7 @@ namespace ProtonRS485Client
             {
                 lastCommandNumber = data[5];
                 ///Здесь вызов эвента события оповещения
+                ProtonEvents.Command(new ProtonMessage((ECommandCode)data[4], (data[10] == 2 ? ECommandCodePrefix.On : ECommandCodePrefix.Off), data[11]));
             }
         }
     }

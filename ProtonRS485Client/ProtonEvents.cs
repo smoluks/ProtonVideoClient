@@ -1,22 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ProtonRS485Client.Data;
 
 namespace ProtonRS485Client
 {
-    public static class Events
+    public static class ProtonEvents
     {
         //События подключения и отключения мастера
         public delegate void ConnectionDelegate();
         public static event ConnectionDelegate ConnectEvent;
         public static event ConnectionDelegate DisconnectEvent;
 
+        public static void Connect()
+        {
+            ConnectEvent.Invoke();
+        }
+
+        public static void Disconnect()
+        {
+            DisconnectEvent.Invoke();
+        }
+
         //Событие приема команды оповещения
-        public delegate void CommandDelegate();
+        public delegate void CommandDelegate(ProtonMessage message);
         public static event CommandDelegate CommandEvent;
+
+        public static void Command(ProtonMessage message)
+        {
+            CommandEvent.Invoke(message);
+        }
     }
+
+    
 
     /*
     private async Task RunConnect(){

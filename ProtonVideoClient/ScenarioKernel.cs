@@ -1,12 +1,12 @@
-﻿using ProtonRS485Client;
+﻿using ProtonRS485Client.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using static ProtonRS485Client.Message;
+using static ProtonRS485Client.Data.ProtonMessage;
 
 namespace ProtonVideoClient
 {
-    public delegate void SetMessageToSendDelegate(Message message);
+    public delegate void SetMessageToSendDelegate(ProtonMessage message);
     public class ScenarioKernel
     {
         MainForm mainForm;
@@ -24,12 +24,17 @@ namespace ProtonVideoClient
         /// <summary>
         /// Колбек от приемника команд
         /// </summary>
-        public void ProcessCommand(byte command, byte arg, bool start)
+        public void ProcessCommand(ProtonMessage message)
         {
-            Log.Write("Command " + (start ? "1-" : "3-") + command + ", arg" + arg);
-            if (start)
+            Log.Write("Command " + message.ToString());
+            if (message.Prefix == ECommandCodePrefix.On)
             {
-                Command c = new Command(command, arg);
+                if((int)message.Command>255)
+                {
+                    throw new Exception("Пришла странная команда "+ (int)message.Command + ". Команды 8-битные, в отличие от сообщений");
+                    return;
+                }
+                Command c = new Command((byte)message.Command, message.Argument);
                 CommandsQueue.Enqueue(c);
                 if (!isNoisePlaying)
                 {
@@ -63,7 +68,7 @@ namespace ProtonVideoClient
                     case 3:
                         if (!noiseOnSent)
                         {
-                            setMessageToSendDelegate(new Message(ECommandCode.Feedback, ECommandCodePrefix.On, 6));
+                            setMessageToSendDelegate(new ProtonMessage(ECommandCode.Feedback, ECommandCodePrefix.On, 6));
                             noiseOnSent = true;
                         }
                         break;
@@ -129,7 +134,7 @@ namespace ProtonVideoClient
             CommandsQueue.Clear();
             isNoisePlaying = false;
             noiseOnSent = false;
-            setMessageToSendDelegate(new Message(ECommandCode.Feedback, ECommandCodePrefix.Off, 6));
+            setMessageToSendDelegate(new ProtonMessage(ECommandCode.Feedback, ECommandCodePrefix.Off, 6));
         }
     }
 }

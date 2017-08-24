@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using ProtonRS485Client;
 using System.IO;
 using System.Drawing;
+using ProtonRS485Client.Uart;
 
 namespace ProtonVideoClient
 {
@@ -40,7 +41,10 @@ namespace ProtonVideoClient
             //
             RS485Library = new RS485ClientMain();
             scenarioKernel = new ScenarioKernel(config, this, RS485Library.SetMessageToSend);
-
+            ProtonEvents.ConnectEvent += Connect;
+            ProtonEvents.ConnectEvent += Disconnect;
+            ProtonEvents.CommandEvent += scenarioKernel.ProcessCommand;
+            
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -50,7 +54,7 @@ namespace ProtonVideoClient
             Player.Height = s.Height;
             Player.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(scenarioKernel.Player_StatusChange);
             //
-            Error err = RS485Library.Connect(config.ComPort, config.objectConfig);
+            Error err = RS485Library.Connect(config.ComPort);
             switch (err)
             {
                 case Error.PortAccessError:
@@ -77,12 +81,14 @@ namespace ProtonVideoClient
             Log.CloseLog();
         }
 
-        void ProcessConnection(bool connect)
+        void Connect()
         {
-            if (connect)
-                webBrowser.Invoke(new Action(() => ViewerHideError()));
-            else
-                webBrowser.Invoke(new Action(() => ViewerShowError("Ожидаем подключения ППКОП")));
+            webBrowser.Invoke(new Action(() => ViewerHideError()));
+        }
+
+        void Disconnect()
+        {
+            webBrowser.Invoke(new Action(() => ViewerShowError("Ожидаем подключения ППКОП")));
         }
 
         private void WebRefreshTimer_Tick(object sender, EventArgs e)

@@ -3,9 +3,8 @@ using System.IO;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 
-namespace ProtonRS485Client
+namespace ProtonRS485Client.Uart
 {
     /// <summary>
     /// Коды возвращаемых ошибок

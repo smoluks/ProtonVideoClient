@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 //ProtonRS485Client.PackageCreate
-namespace ProtonRS485Client
+namespace ProtonRS485Client.PackageCreate
 {
     /// <summary>
     /// Всякие алгоритмы и другие заведомо неизменные вещи

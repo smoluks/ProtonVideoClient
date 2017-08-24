@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProtonRS485Client.Data;
+using System;
 
 namespace ProtonRS485Client
 {
@@ -11,17 +12,16 @@ namespace ProtonRS485Client
     class PackageDataDispatcher
     {
         private byte _mySlaveDeviceAddress; //заданный адрес этого устройства без бита поиска
-        private byte _incomingAddress; //пришедший адрес с битом поиска 
-
-        private byte[] _data;
+        public Package package { get; } //
 
         /// <summary>
         /// Конструктор
         /// </summary>
         /// <param name="mySlaveDeviceAddress">адрес этого устройства на шине. Для всех модулей оповещения 120, для ППКОП 1 - 15</param>
-        public PackageDataDispatcher(byte mySlaveDeviceAddress)
+        public PackageDataDispatcher()
         {
-            _mySlaveDeviceAddress = mySlaveDeviceAddress;
+            _mySlaveDeviceAddress = ObjectConfig.DeviceAddress;
+            package = new Package();
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace ProtonRS485Client
             if (!IsAddressCorrect(address))
                 //это не наш адрес - это норма, не нужно писать это в лог
                 return false;
-            _incomingAddress = address;
+            package.Address = address;
             return true;
         }
 
@@ -48,9 +48,7 @@ namespace ProtonRS485Client
             if (!IsLengthInRange(length))
                 //длина побилась или не поддерживается - это тоже боле-менее норма, не нужно писать это в лог
                 return false;
-            _data = new byte[length + 1]; //crc теперь тоже храним
-            _data[0] = _incomingAddress;
-            _data[1] = length;
+            package.Length = length;
             return true;
         }
 
@@ -66,26 +64,18 @@ namespace ProtonRS485Client
                 LogDispatcher.Write("Ошибка длины данных в ProcessPacket. Пришло " + data.Length + " байт, ожидалось " + (data[1] - 1) + " байт");
                 return false;
             }
-            data.CopyTo(_data, 2);
-            
-            //CRC от пакета с CRC на конце равна нулю, это свойство CRC
-            if (PackageAlgs.GetCrc(_data) != 0)
-            {
-                LogDispatcher.Write("Ошибка CRC в пакете " + BitConverter.ToString(_data).Replace("-", " "));
-                return false;
-            }
+            package.Data = data;            
             return true;
         }
 
-        /// <summary>
-        /// Собранный пакет
-        /// </summary>
-        public byte[] Packet
+        public bool ProcessCRC(byte crc)
         {
-            get
+            if (package.Crc != crc)
             {
-                return _data;
+                LogDispatcher.WriteData("Ошибка CRC в пакете ", package.GetPacket());
+                return false;
             }
+            return true;
         }
 
         /// <summary>
@@ -99,7 +89,7 @@ namespace ProtonRS485Client
         }
 
         /// <summary>
-        /// Проверка длины пкатена на корректность
+        /// Проверка длины пакета на корректность
         /// </summary>
         /// <param name="length"></param>
         /// <returns></returns>

@@ -1,9 +1,11 @@
-﻿using System;
+﻿using ProtonRS485Client.Data;
+using System;
 using System.Windows.Forms;
+using static ProtonRS485Client.Data.ProtonMessage;
 
 namespace ProtonVideoClient
 {
-    public delegate void ProcessCommandDelegate(byte command, byte arg, bool start);
+    public delegate void ProcessCommandDelegate(ProtonMessage message);
     public partial class TestForm : Form
     {
         ProcessCommandDelegate _processCommand;
@@ -13,14 +15,10 @@ namespace ProtonVideoClient
             InitializeComponent();
         }
 
-        private void TestForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            _processCommand((byte)CommandField.Value, (byte)ArgumentField.Value, StartSelect.Checked);
+            _processCommand(new ProtonMessage((ECommandCode)CommandField.Value, (StartSelect.Checked ? ECommandCodePrefix.On : ECommandCodePrefix.Off), (byte)ArgumentField.Value));
         }
+
     }
 }

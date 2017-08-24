@@ -144,7 +144,6 @@
             this.ShowInTaskbar = false;
             this.Text = "Проверка реакции на команды оповещения";
             this.TopMost = true;
-            this.Load += new System.EventHandler(this.TestForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.CommandField)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ArgumentField)).EndInit();
             this.ResumeLayout(false);

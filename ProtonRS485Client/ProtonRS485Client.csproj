@@ -45,9 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Message.cs" />
+    <Compile Include="Data\ProtonMessage.cs" />
     <Compile Include="Data\ObjectConfig.cs" />
-    <Compile Include="Events.cs" />
+    <Compile Include="ProtonEvents.cs" />
+    <Compile Include="Data\Package.cs" />
     <Compile Include="PackageCreate\PackageConnectDispatcher.cs" />
     <Compile Include="PackageProcess\PackageProcessor.cs" />
     <Compile Include="Data\ObjectState.cs" />

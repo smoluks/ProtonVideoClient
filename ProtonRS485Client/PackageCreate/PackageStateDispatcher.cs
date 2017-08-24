@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ProtonRS485Client.Data;
+using ProtonRS485Client.PackageProcess;
+using ProtonRS485Client.Uart;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace ProtonRS485Client
+namespace ProtonRS485Client.PackageCreate
 {
     /// <summary>
     /// Класс сборки пакетов
@@ -14,22 +15,22 @@ namespace ProtonRS485Client
         private readonly PackageDataDispatcher _packageDataDispatcher;
         private readonly PackageConnectDispatcher _packageConnectDispatcher;
         private readonly PackageProcesser _packageProcesser;
+
+
+        CancellationTokenSource _cancelTokenSource;
         CancellationToken _breakToken;
 
-        bool _dataLogging; 
 
-        //token переместить в CollectPackets
-        //ObjectConfig сделать статическим
-        public PackageStateDispatcher(UartDispatcher uart, PackageDataDispatcher packageDataDispatcher, PackageConnectDispatcher packageConnectDispatcher, ObjectConfig objectConfig, ObjectState objectState, CancellationToken breakToken)
+        public PackageStateDispatcher(UartDispatcher uart, PackageDataDispatcher packageDataDispatcher, PackageConnectDispatcher packageConnectDispatcher)
         {
             _uart = uart;
             _packageDataDispatcher = packageDataDispatcher;
             _packageConnectDispatcher = packageConnectDispatcher;
             //
-            _packageProcesser = new PackageProcesser(objectConfig, objectState);
-            _dataLogging = objectConfig.dataLogging;
+            _packageProcesser = new PackageProcesser();
             //
-            _breakToken = breakToken;
+            _cancelTokenSource = new CancellationTokenSource();
+            _breakToken = _cancelTokenSource.Token;
         }
 
         /// <summary>
@@ -38,73 +39,40 @@ namespace ProtonRS485Client
         /// Разделить операции (см. комментарии в Events)
         public async Task CollectPacketsAsync()
         {
+            LogDispatcher.Write("CollectPacketsAsync start");
             while (!_breakToken.IsCancellationRequested)
             {
+                //адрес                
                 var address = await _uart.ReadByteAsync(_breakToken);
                 if (!_packageDataDispatcher.ProcessAddress(address)) return;
                 //инкапсулировать (address & 0x80) == 0
-                _packageConnectDispatcher.CorrectAddressReceived((address & 0x80) == 0);
-
+                _packageConnectDispatcher.CorrectAddressReceived((address & 0x80)!=0);
+                //длина
                 var length = await _uart.ReadByteAsync(_breakToken);
                 if (!_packageDataDispatcher.ProcessFrameLength(length)) return;
                 //Данные
-                var dataTask = await _uart.ReadAsync(length - 1, _breakToken);
-                if (!_packageDataDispatcher.ProcessPacket(dataTask)) return;
+                var data = await _uart.ReadAsync(length - 1, _breakToken);
+                if (!_packageDataDispatcher.ProcessPacket(data)) return;
+                //Crc
+                var crc = await _uart.ReadByteAsync(_breakToken);
+                if (!_packageDataDispatcher.ProcessCRC(crc)) return;
                 //отправить это на обработку
-                if (_dataLogging)
-                    LogDispatcher.WriteData("Packet received: ", _packageDataDispatcher.Packet);
-                var answerTask = _packageProcesser.ProcessCommand(_packageDataDispatcher.Packet);
+                if (ObjectConfig.dataLogging)
+                    LogDispatcher.WriteData("Packet received: ", _packageDataDispatcher.package.GetPacket());
+                var answerTask = _packageProcesser.ProcessCommand(_packageDataDispatcher.package.GetPacket());
                 if (answerTask != null)
                 {
                     await _uart.WriteAsync(answerTask, _breakToken);
                     await _uart.WriteByteAsync(PackageAlgs.GetCrc(answerTask), _breakToken);
-                    if (_dataLogging)
+                    if (ObjectConfig.dataLogging)
                         LogDispatcher.WriteData("Packet transmitted: ", answerTask);
                 }
             }
-            /*return Task.Run(() =>
-            {
-                while (!_breakToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        //Адрес
-                        var addrTask = _uart.ReadByteAsync(_breakToken);
-                        addrTask.Wait();
-                        if (!_packageDataDispatcher.ProcessAddress(addrTask.Result))
-                            break;
-                        _packageConnectDispatcher.CorrectAddressReceived((addrTask.Result & 0x80) == 0);
-                        //Длина
-                        var lenght = _uart.ReadByteAsync(_breakToken);
-                        lenght.Wait();
-                        if (!_packageDataDispatcher.ProcessFrameLength(lenght.Result))
-                            break;
-                        //Данные
-                        var dataTask = _uart.ReadAsync(lenght.Result - 1, _breakToken);
-                        dataTask.Wait();
-                        if (!_packageDataDispatcher.ProcessPacket(dataTask.Result))
-                            break;
-                        //отправить это на обработку
-                        if (_dataLogging)
-                            LogDispatcher.WriteData("Packet received: ", _packageDataDispatcher.Packet);
-                        var answerTask = _packageProcesser.ProcessCommand(_packageDataDispatcher.Packet);
-                        if (answerTask != null)
-                        {
-                            var writeTask = _uart.WriteAsync(answerTask, _breakToken);
-                            writeTask.Wait();
-                            var writeCRCTask = _uart.WriteByteAsync(PackageAlgs.GetCrc(answerTask), _breakToken);
-                            writeCRCTask.Wait();
-                            if (_dataLogging)
-                                LogDispatcher.WriteData("Packet transmitted: ", answerTask);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogDispatcher.Write("CollectPacketsAsync ended by exception "+ex.Message);
-                        return;
-                    }
-                }
-            });*/
+        }
+
+        public void KillTask()
+        {
+            _cancelTokenSource.Cancel();
         }
     }
 }
