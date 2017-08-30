@@ -9,7 +9,7 @@ namespace ProtonVideoClient
 {
     public partial class MainForm : Form
     {
-        RS485ClientMain RS485Library;
+        RS485Client RS485Library;
         Config config;
         ScenarioKernel scenarioKernel;
 
@@ -39,11 +39,11 @@ namespace ProtonVideoClient
                 this.FormBorderStyle = FormBorderStyle.Fixed3D;
             }
             //
-            RS485Library = new RS485ClientMain();
-            scenarioKernel = new ScenarioKernel(config, this, RS485Library.SetMessageToSend);
-            ProtonEvents.ConnectEvent += Connect;
-            ProtonEvents.ConnectEvent += Disconnect;
-            ProtonEvents.CommandEvent += scenarioKernel.ProcessCommand;
+            RS485Library = new RS485Client();
+            scenarioKernel = new ScenarioKernel(config, this, RS485Library.SendMessage);
+            //ProtonEvents.ConnectEvent += Connect;
+            //ProtonEvents.ConnectEvent += Disconnect;
+            //ProtonEvents.CommandEvent += scenarioKernel.ProcessCommand;
             
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProtonRS485Client.Data;
+using System;
 using System.Timers;
 
 namespace ProtonRS485Client.PackageCreate
@@ -24,7 +25,7 @@ namespace ProtonRS485Client.PackageCreate
         {
             if (!search) //начинаем отсчет только если стадия поиска прошла успешно
             {
-                ProtonEvents.Connect();
+                ExternalDataContract.IsMasterConnect = true;
                 timer.Stop();
                 timer.Start();
             }
@@ -37,7 +38,7 @@ namespace ProtonRS485Client.PackageCreate
         /// <param name="e"></param>
         public void Timeout(object sender,  ElapsedEventArgs e)
         {
-            ProtonEvents.Disconnect();
+            ExternalDataContract.IsMasterConnect = true;
             timer.Stop();
         }
     }

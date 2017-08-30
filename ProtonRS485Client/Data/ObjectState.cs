@@ -7,11 +7,7 @@ namespace ProtonRS485Client.Data
     /// </summary>
     /// 
     public static class ObjectState
-    {
-        /// <summary>
-        /// Сообщения, которые надо отправить серверу
-        /// </summary>
-        public static Queue<ProtonMessage> MessageBuffer = new Queue<ProtonMessage>();
+    {        
         /// <summary>
         /// Пожар?
         /// </summary>

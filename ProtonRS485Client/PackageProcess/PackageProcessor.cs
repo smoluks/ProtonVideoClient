@@ -70,6 +70,7 @@ namespace ProtonRS485Client.PackageProcess
         //ответ на опрос
         byte[] MakeStateAnswer(byte[] data)
         {
+            ProtonMessage currentMessage;
             //-----обработка полученной команды-----
             switch (data[3])
             {
@@ -97,10 +98,9 @@ namespace ProtonRS485Client.PackageProcess
                 isNoiseCommandAccepted = false;
                 return buffer;
             }
-            else if (ObjectState.MessageBuffer.Count > 0)
+            else if (ExternalDataContract.MessageBuffer.TryDequeue(out currentMessage))
             {
-                //---отправка сообщения---
-                ProtonMessage currentMessage = ObjectState.MessageBuffer.Dequeue();                
+                //---отправка сообщения---           
                 byte[] buffer = new byte[11];
                 buffer[0] = ObjectConfig.DeviceAddressRegistered;
                 buffer[1] = 11; //длина
@@ -167,7 +167,8 @@ namespace ProtonRS485Client.PackageProcess
             {
                 lastCommandNumber = data[5];
                 ///Здесь вызов эвента события оповещения
-                ProtonEvents.Command(new ProtonMessage((CommandCodeEnum)data[4], (data[10] == 2 ? CommandCodePrefixEnum.On : CommandCodePrefixEnum.Off), data[11]));
+                ProtonMessage newCommand = new ProtonMessage((CommandCodeEnum)data[4], (data[10] == 2 ? CommandCodePrefixEnum.On : CommandCodePrefixEnum.Off), data[11]);
+                ExternalDataContract.CommandQueue.Enqueue(newCommand);
             }
         }
     }

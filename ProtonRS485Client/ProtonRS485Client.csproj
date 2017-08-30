@@ -45,16 +45,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Container.cs" />
     <Compile Include="Data\ProtonMessage.cs" />
     <Compile Include="Data\ObjectConfig.cs" />
-    <Compile Include="ProtonEvents.cs" />
+    <Compile Include="Data\ExternalDataContract.cs" />
     <Compile Include="Data\Package.cs" />
     <Compile Include="PackageCreate\PackageConnectDispatcher.cs" />
     <Compile Include="PackageProcess\PackageProcessor.cs" />
     <Compile Include="Data\ObjectState.cs" />
     <Compile Include="LogDispatcher.cs" />
-    <Compile Include="RS485ClientMain.cs" />
+    <Compile Include="RS485Client.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PackageCreate\PackageStaticMethods.cs" />
     <Compile Include="Uart\UartDispatcher.cs" />
