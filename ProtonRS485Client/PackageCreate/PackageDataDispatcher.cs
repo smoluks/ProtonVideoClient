@@ -9,7 +9,7 @@ namespace ProtonRS485Client
     /// Слишком много всего в одном классе
     /// 1) Вынести хранение
     /// 2) Вынести чтение
-    class PackageDataDispatcher
+    public class PackageDataDispatcher
     {
         private byte _mySlaveDeviceAddress; //заданный адрес этого устройства без бита поиска
         public Package package { get; } //
@@ -59,9 +59,9 @@ namespace ProtonRS485Client
         /// <returns>корректен ли пакет</returns>
         public bool ProcessPacket(byte[] data)
         {
-            if (data.Length != data[1] - 1)
+            if (data.Length != package.Length - 2)
             {
-                LogDispatcher.Write("Ошибка длины данных в ProcessPacket. Пришло " + data.Length + " байт, ожидалось " + (data[1] - 1) + " байт");
+                LogDispatcher.Write("Ошибка длины данных в ProcessPacket. Пришло " + data.Length + " байт, ожидалось " + (package.Length - 2) + " байт");
                 return false;
             }
             package.Data = data;            

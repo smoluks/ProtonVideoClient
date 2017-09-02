@@ -15,7 +15,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -56,6 +56,7 @@
     <Compile Include="RS485Client.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PackageCreate\PackageStaticMethods.cs" />
+    <Compile Include="Uart\HardwareLevelDispatcher.cs" />
     <Compile Include="Uart\UartDispatcher.cs" />
     <Compile Include="PackageCreate\PackageDataDispatcher.cs" />
     <Compile Include="PackageCreate\PackageStateDispatcher.cs" />

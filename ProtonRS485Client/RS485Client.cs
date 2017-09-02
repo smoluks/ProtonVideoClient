@@ -2,7 +2,6 @@
 using ProtonRS485Client.PackageCreate;
 using ProtonRS485Client.Uart;
 using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace ProtonRS485Client
@@ -14,7 +13,7 @@ namespace ProtonRS485Client
     {
         UartDispatcher _uart = new UartDispatcher();
         PackageStateDispatcher _packageStateDispatcher;
-        
+
         /// <summary>
         /// Конструктор
         /// </summary>
@@ -24,6 +23,8 @@ namespace ProtonRS485Client
             LogDispatcher.Open("proton_rs485_library.log");
             LogDispatcher.Write("ProtonRS485Client started");
         }
+
+        Task task;
 
         /// <summary>
         /// Начать обмен с мастером
@@ -39,14 +40,9 @@ namespace ProtonRS485Client
                 return connectionResult;
             //
             _packageStateDispatcher = new PackageStateDispatcher(_uart, new PackageDataDispatcher(), new PackageConnectDispatcher());
-            CollectPacketsAsync();
+            task = _packageStateDispatcher.CollectPacketsAsync();
             //
             return Error.None;
-        }
-
-        async void CollectPacketsAsync()
-        {
-            await _packageStateDispatcher.CollectPacketsAsync();
         }
 
         /// <summary>
@@ -54,8 +50,7 @@ namespace ProtonRS485Client
         /// </summary>
         public void Disconnect()
         {
-            _packageStateDispatcher.KillTask();
-            _uart.Dispose();
+            KillTask();
             LogDispatcher.Write("ProtonRS485Client disconnect");
         }
 
@@ -64,17 +59,23 @@ namespace ProtonRS485Client
         /// </summary>
         public void Dispose()
         {
-            _packageStateDispatcher.KillTask();
-            _uart.Dispose();
-            LogDispatcher.Write("ProtonRS485Client closed");
+            KillTask();
+            LogDispatcher.Write("ProtonRS485Client closed nya");
             LogDispatcher.Close();
+        }
+
+        async void KillTask()
+        {
+            _packageStateDispatcher.KillTask();
+            await task;
+            _uart.Dispose();
         }
 
         /// <summary>
         /// читает команду с объекта
         /// </summary>
         /// <returns></returns>
-        public Task<ProtonMessage> ReadCommand()
+        public Task<ProtonMessage> ReadCommandAsync()
         {
             return new Task<ProtonMessage>(() =>
             {
@@ -83,6 +84,17 @@ namespace ProtonRS485Client
                 return command;
             }
             );
+        }
+
+        /// <summary>
+        /// читает команду с объекта
+        /// </summary>
+        /// <returns></returns>
+        public ProtonMessage ReadCommand()
+        {
+            ProtonMessage command;
+            while (ExternalDataContract.CommandQueue.TryDequeue(out command)) { };
+            return command;
         }
 
         /// <summary>

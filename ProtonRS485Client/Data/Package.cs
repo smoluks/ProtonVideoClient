@@ -6,7 +6,7 @@ namespace ProtonRS485Client.Data
     /// <summary>
     /// Класс протонопакета
     /// </summary>
-    class Package
+    public class Package
     {
         private byte[] packet = null;
 

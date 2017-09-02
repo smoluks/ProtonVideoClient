@@ -14,7 +14,7 @@ namespace ProtonRS485Client.Uart
     /// <summary>
     /// Реализация работы с COM-портом
     /// </summary>
-    class UartDispatcher : IDisposable
+    class UartDispatcher : IDisposable, HardwareLevelDispatcher
     {
         private SerialPort _serialPort;
         private bool _connected;
@@ -55,6 +55,7 @@ namespace ProtonRS485Client.Uart
             if (_connected)
             {
                 _serialPort.Close();
+                _serialPort.Dispose();
             }
         }
         public void Dispose()

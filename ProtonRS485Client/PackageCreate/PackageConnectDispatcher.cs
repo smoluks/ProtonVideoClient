@@ -7,7 +7,7 @@ namespace ProtonRS485Client.PackageCreate
     /// <summary>
     /// Этот класс будет дергать эвенты подключения и отключения
     /// </summary>
-    class PackageConnectDispatcher
+    public class PackageConnectDispatcher
     {
         const int timeout = 4100;
         Timer timer;
