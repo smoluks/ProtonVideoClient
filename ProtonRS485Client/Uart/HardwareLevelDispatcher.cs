@@ -17,7 +17,7 @@ namespace ProtonRS485Client.Uart
         /// </summary>
         /// <param name="count">количество</param>
         /// <returns>считанные данные</returns>
-         Task<byte> ReadByteAsync(CancellationToken token);
+        Task<byte> ReadByteAsync(CancellationToken token);
 
         /// <summary>
         /// Запись в порт

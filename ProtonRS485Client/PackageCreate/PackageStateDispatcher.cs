@@ -74,7 +74,7 @@ namespace ProtonRS485Client.PackageCreate
 
         async Task<bool> DataAsync()
         {
-            var data = await _uart.ReadAsync(_packageDataDispatcher.package.Length-2, _breakToken);
+            var data = await _uart.ReadAsync(_packageDataDispatcher.package.Length - 2, _breakToken);
             return _packageDataDispatcher.ProcessPacket(data);
         }
 

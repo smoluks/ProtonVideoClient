@@ -1,53 +1,61 @@
 ﻿using ProtonRS485Client.Uart;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
-using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace ProtonRS485UnitTestProject
 {
     class FakeUart : HardwareLevelDispatcher
     {
-        MemoryStream dataIn;
+        Queue<byte> dataIn = new Queue<byte>();
 
         public void SetDataIn(byte[] data)
         {
-            dataIn = new MemoryStream(data);
+            foreach (byte b in data)
+                dataIn.Enqueue(b);
         }
 
         public async Task<byte[]> ReadAsync(int count, CancellationToken token)
         {
-            byte[] buffer = new byte[count];
-            await dataIn.ReadAsync(buffer, 0, count);
-            return buffer;
+            return await Task.Run(() =>
+            {
+                while (dataIn.Count < count) { };
+                byte[] buffer = new byte[count];
+                for (int i = 0; i < count; i++)
+                    buffer[i] = dataIn.Dequeue();
+                return buffer;
+            });
         }
 
         public async Task<byte> ReadByteAsync(CancellationToken token)
         {
-            byte[] buffer = new byte[1];
-            await dataIn.ReadAsync(buffer, 0, 1);
-            return buffer[0];
+            return await Task.Run(() =>
+            {
+                while (dataIn.Count < 1) { };
+                return dataIn.Dequeue();
+            });
         }
 
         public Task WriteAsync(byte[] buffer, CancellationToken token)
         {
-            foreach (byte b in buffer)
-                processByte(b);
-            return new Task(() => {});
+            return Task.Run(() =>
+            {
+                foreach (byte b in buffer)
+                    ProcessByte(b);
+            });
         }
 
         public Task WriteByteAsync(byte data, CancellationToken token)
         {
-            processByte(data);
-            return new Task(() => { });
+            return Task.Run(() =>
+            {
+                ProcessByte(data);
+            });
         }
 
-        public bool packetIsComleted = false;
-        public byte[] dataOut = null;
+        public bool packetIsCompleted = false;
+        byte[] dataOut = null;
 
         enum Estate { WaitAddress, WaitLength, CollectData };
         Estate State = Estate.WaitAddress;
@@ -55,7 +63,16 @@ namespace ProtonRS485UnitTestProject
         byte address;
         byte handle;
 
-        void processByte(byte b)
+        public byte[] ReceivedPacket
+        {
+            get
+            {
+                packetIsCompleted = false;
+                return dataOut;
+            }
+        }
+
+        void ProcessByte(byte b)
         {
             switch (State)
             {
@@ -74,7 +91,7 @@ namespace ProtonRS485UnitTestProject
                     dataOut[handle++] = b;
                     if (handle == dataOut.Length)
                     {
-                        packetIsComleted = true;
+                        packetIsCompleted = true;
                         State = Estate.WaitAddress;
                     }
                     break;

@@ -117,7 +117,12 @@ namespace ProtonRS485Client.Data
             else if (!isDataReceived)
                 throw new Exception("Data not set");
             else
+            {
+                isAdressReceived = false;
+                isLengthReceived = false;
+                isDataReceived = false;
                 return packet;
+            }
         }
     }
 }
