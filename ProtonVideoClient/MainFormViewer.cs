@@ -1,5 +1,4 @@
-﻿using ProtonRS485Client;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Forms;
 
 namespace ProtonVideoClient
@@ -8,13 +7,13 @@ namespace ProtonVideoClient
     {
         bool isError = false;
 
-
         public void ViewerPlayMessage(string path)
         {            
             Log.Write("ViewerPlay: " + path);
             Player.Ctlcontrols.stop();
             ShowPlayer();
             Player.URL = path;
+            Volume.SetNewVolume(100);
             Player.settings.setMode("loop", config.Repeat);
             Player.Ctlcontrols.play();
         }
@@ -24,6 +23,7 @@ namespace ProtonVideoClient
             Log.Write("ViewerShowStop");
             Player.Ctlcontrols.stop();
             HidePlayer();
+            Volume.RestoreVolume();
             if (isError)
                 ShowError();
             else
